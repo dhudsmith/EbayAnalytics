@@ -1,9 +1,4 @@
 from flask import Flask, render_template, request, redirect
-from bokeh.plotting import figure
-import requests
-import json
-import pandas as pd
-import numpy as np
 
 app = Flask(__name__)
 
