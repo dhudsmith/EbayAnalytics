@@ -86,7 +86,7 @@ plt = BoxPlot(data_sold, values = 'value', label= ['listingType','isShippingFree
               outliers = False)
 
 # Save the plot
-output_file("plot1.html")
+output_file("./plots/plot1.html")
 show(plt)
 
 #######################################################
@@ -144,7 +144,7 @@ plt2 = Bar(factorPortions_df,
            legend=True)
 
 # Save the plot
-output_file("plot2.html")
+output_file("./plots/plot2.html")
 show(plt2)
 
 #######################################################
