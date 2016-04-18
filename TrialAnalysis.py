@@ -86,7 +86,7 @@ plt = BoxPlot(data_sold, values = 'value', label= ['listingType','isShippingFree
               outliers = False)
 
 # Save the plot
-output_file("./plots/plot1.html")
+output_file("./templates/plot1.html")
 show(plt)
 
 #######################################################
@@ -139,58 +139,11 @@ plt2 = Bar(factorPortions_df,
            values="value",
            group="status",
            agg="mean",
+           xlabel="Listing feature",
            ylabel="Fraction of listings with feature",
            title="Impact of listing features on sale outcome",
            legend=True)
 
 # Save the plot
-output_file("./plots/plot2.html")
+output_file("./templates/plot2.html")
 show(plt2)
-
-#######################################################
-# Examine the effect "endTime" on "value" on
-# sold _Buy it now_ and sold _Auction_items
-#######################################################
-
-# Convert the TimeEnded Column into a datetime object
-
-# def convert_datetime(datetime_string):
-#     format = '%Y-%m-%dT%H:%M:%S.%fZ'
-#     return datetime.strptime(datetime_string, format)
-#
-# data_sold['endTime'] = [convert_datetime(datetime_string) for datetime_string in data_sold.loc[:, 'endTime']]
-# data_sold['startTime'] = [convert_datetime(datetime_string) for datetime_string in data_sold.loc[:, 'startTime']]
-#
-# # Add a sale hour to the data frame
-# data_sold['endHour']= [x.hour for x in data_sold['endTime']]
-# data_sold['startHour']= [x.hour for x in data_sold['startTime']]
-# data_sold['duration']= data_sold['endTime'] - data_sold['startTime']
-#
-# pp.pprint(data_sold.head())
-
-# Generate the plots
-# First the Auction Data
-# TOOLS = 'box_zoom,box_select,crosshair,resize,reset'
-# plt2a = BoxPlot(data_sold[data_sold.listingType=="Auction"], values = 'value', label= ['startHour'],
-#               title = "MacBook Pro Sale Values (Auction)",
-#               xlabel="(Listing Type, Sale Hour (0-23)",
-#               ylabel="Sale price ($)",
-#               outliers = False)
-# plt2b = BoxPlot(data_sold[data_sold.listingType=="Fixed Price"], values='value', label=['startHour'],
-#                 title="MacBook Pro Sale Values (Fixed Price)",
-#                 xlabel="(Listing Type, Sale Hour (0-23)",
-#                 ylabel="Sale price ($)",
-#                 outliers=False)
-
-# plt3 = figure(tools=TOOLS,
-#               title='MacBook Pro Sale Values (Auction)',
-#               x_axis_label='Duration (days)')
-#
-# data_sold = data_sold.sort_values(by='duration')
-#
-# plt3.line(data_sold.duration, data_sold.value, color='navy', alpha=0.5)
-
-# Save the plot
-# output_file("plot2.html")
-# # show(hplot(plt2a, plt2b))
-# show(plt3)
