@@ -19,7 +19,7 @@ api.ebay.com:
 # Finding API - https://www.x.com/developers/ebay/products/finding-api
 svcs.ebay.com:
     appid: DaneSmit-EbayList-PRD-c05763884-7fcad3ce
-    version: 1.0.0
+    version: 1.13.0
 
 # Shopping API - https://www.x.com/developers/ebay/products/shopping-api
 open.api.ebay.com:

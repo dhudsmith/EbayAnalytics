@@ -123,7 +123,8 @@ if __name__ == "__main__":
     api_request = {
         'keywords': u'MacBook Pro',
         'categoryId': u'111422',
-            'itemFilter': [
+        'sortOrder': u'StartTimeNewest',
+        'itemFilter': [
             {'name': 'Condition',
              'value': 'Used'},
             {'name': 'AvailableTo',
@@ -144,8 +145,10 @@ if __name__ == "__main__":
     # Get the data from all the pages
     data_ls = []
     for i in range(1, num_pages+1):
-        print(i)
+        print(i/num_pages * 100, "% complete.")
+
         listings = request_completed_listings(opts, api_request, i)
+
         if 'searchResult' in listings:
             data_ls.append(get_relevant_data(listings['searchResult']['item']))
 
@@ -153,6 +156,6 @@ if __name__ == "__main__":
     data = pd.concat(data_ls)
 
     # Print the data frame to a file
-    data.to_csv("./ebay_data.csv", na_rep = "NA")
+    data.to_csv("./ebay_data.csv", na_rep = "NA", index = False)
 
 
