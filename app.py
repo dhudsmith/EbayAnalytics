@@ -7,7 +7,7 @@ app.vars = {}
 
 @app.route('/')
 def main():
-    return redirect('/plot1')
+    return render_template('main.html')
 
 # @app.route('/', methods = ['POST'])
 # def form_POST():
@@ -29,4 +29,4 @@ def plot2():
 
 
 if __name__ == '__main__':
-    app.run(port=33507, debug=False)
+    app.run(port=33507, debug=True)
