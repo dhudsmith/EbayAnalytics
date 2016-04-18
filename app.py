@@ -10,7 +10,7 @@ app = Flask(__name__)
 # App variables
 app.vars = {}
 
-@app.route('/', methods = ['GET'])
+@app.route('/')
 def main():
     return redirect('/plot1')
 
