@@ -55,7 +55,7 @@ def get_number_pages(opts, api_request):
         print(e)
         print(e.response.dict())
 
-def get_completed_listings(opts, api_request, page_number=1):
+def request_completed_listings(opts, api_request, page_number=1):
 
     api_request['paginationInput'] = {"entriesPerPage": 100,
                                       "pageNumber": page_number}
@@ -67,7 +67,7 @@ def get_completed_listings(opts, api_request, page_number=1):
 
 
         # Strip the list of results
-        response = api.execute('findCompletedItems', api_request).dict()['searchResult']['item']
+        response = api.execute('findCompletedItems', api_request).dict()
 
         return(response)
 
@@ -93,13 +93,14 @@ def get_relevant_data(listings):
                  'endTime': item['listingInfo']['endTime'],
                  # item['location'],
                  'paymentMethod': item['paymentMethod'],
-                 # item['postalCode'],
+                 'postalCode': get_key_value(item, 'postalCode'),
                  'categoryId': item['primaryCategory']['categoryId'],
                  'categoryName': item['primaryCategory']['categoryName'],
-                 # 'productId_type': item['productId']['_type'],
-                 # 'productId_value': item['productId']['value'],
+                 'productId_type':  get_key_value(get_key_value(item, 'productId'),'_type'),
+                 'productId_value':  get_key_value(get_key_value(item, 'productId'),'value'),
                  'returnsAccepted': item['returnsAccepted'] == 'true',
                  'value': float(item['sellingStatus']['currentPrice']['value']),
+                 'bidCount': get_key_value(get_key_value(item, 'sellingStatus'), 'bidCount'),
                  'sellingState': item['sellingStatus']['sellingState'],
                  'expeditedShipping': item['shippingInfo']['expeditedShipping'] == 'true',
                  # 'handlingTime': item['shippingInfo']['handlingTime'],
@@ -110,13 +111,19 @@ def get_relevant_data(listings):
 
     return(pd.DataFrame(dicts))
 
+def get_key_value(dict, key):
+    if key in dict:
+        return(dict[key])
+    else:
+        return('NA')
 
 
 if __name__ == "__main__":
 
     api_request = {
-        'keywords': u'2014 MacBook Pro',
-        'itemFilter': [
+        'keywords': u'MacBook Pro',
+        'categoryId': u'111422',
+            'itemFilter': [
             {'name': 'Condition',
              'value': 'Used'},
             {'name': 'AvailableTo',
@@ -132,16 +139,20 @@ if __name__ == "__main__":
     # Get number of pages of entries
     num_pages = get_number_pages(opts, api_request)
     print("Number of pages:", num_pages)
+    print("Number of entries:", num_pages * 100)
 
     # Get the data from all the pages
     data_ls = []
     for i in range(1, num_pages+1):
-        listings = get_completed_listings(opts, api_request, i)
-        data_ls.append(get_relevant_data(listings))
+        print(i)
+        listings = request_completed_listings(opts, api_request, i)
+        if 'searchResult' in listings:
+            data_ls.append(get_relevant_data(listings['searchResult']['item']))
 
     # Combine all the data frames into one:
     data = pd.concat(data_ls)
 
-    print(data.loc[:,'value'].describe())
-    print(sys.getsizeof(data))
+    # Print the data frame to a file
+    data.to_csv("./ebay_data.csv", na_rep = "NA")
+
 
