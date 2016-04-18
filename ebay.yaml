@@ -1,0 +1,27 @@
+name: ebay_api_config
+
+# Trading API Sandbox - https://www.x.com/developers/ebay/products/trading-api
+api.sandbox.ebay.com:
+    compatability: 719
+    appid: DaneSmit-EbayList-SBX-de7ff2694-806474f9
+    certid: SBX-e7ff2694d9af-eefe-411d-8e74-0b63
+    devid: a6e4bad8-e302-4de5-97dd-bd16ae97f93f
+    token: ENTER_YOUR_TOKEN_HERE
+
+# Trading API - https://www.x.com/developers/ebay/products/trading-api
+api.ebay.com:
+    compatability: 719
+    appid: DaneSmit-EbayList-SBX-de7ff2694-806474f9
+    certid: SBX-e7ff2694d9af-eefe-411d-8e74-0b63
+    devid: a6e4bad8-e302-4de5-97dd-bd16ae97f93f
+    token: AgAAAA**AQAAAA**aAAAAA**nS0UVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4GgCpCAoASdj6x9nY+seQ**TccDAA**AAMAAA**BzeH1jp5tltWAY7lsuNLax9saLN82gmFn3pgrW6eCrtj0zZ6bzKLSRAhuqUQgoNB4wnxJCIRujHhFJX2yjymp3OwvYmOrr3TJm0N1MGJtIiDi+S2xEJ+pbkz6Okes4NMZwJnDmHFnRtP4Y6uqH97fh2JQHjJtZ93PNAW889cmKjvfgCU4IILJU3XUKhQ7rVB5fP8eWOCnx6T+dvo27Hq1W6W9rfFYoThFQXMeDC0mCAspnVshxh+8L+LywpbiYP83XEbfbOidMJYJu4CP5Hl7NXPcyfxpbtj/BjABgK2uZB0+gbhOWj26gZkWcqVd9HmD2dI/H8qY/z9hcMHY0agM9Z4EQwPuZZA5cM7A5YN3A9+NCY1IgzpLrD34/EXpJH75n+tmCG0A3TKPEQJqik0IkbRsZXtE3yPTQzsv8gK+V06KbeOsNQMoBv0xhDWJopU5YsgjGrbrwzSN41luTTnMeN6LioQeuf/mlLyjlf7tmcjaH+Y03GUV9DmRgYPip6s1lkC7KuHjPaNz8HH3iLEz+i6HREMGG6pb+PKj3dcTsORZI2ZDAW57h2EfS1Mz+3s9863zjjWLRhLWr7dknVtnpM1lbMMPSjF44Amg8IfGNTL9NsLTdFOUYsmjPuPBytBwus7fhQ967dkVLtZSk4bha8dZCUBRYHSnH7HajHnyqVP6fJprzKU/G8Ty2xRGUxkBWu+KOnZBJtsPoiWoMki5bdfhl3M4h/y3V9DQuqtFlksAeE1yYM3UBfbNRVLh63+
+
+# Finding API - https://www.x.com/developers/ebay/products/finding-api
+svcs.ebay.com:
+    appid: DaneSmit-EbayList-SBX-de7ff2694-806474f9
+    version: 1.0.0
+
+# Shopping API - https://www.x.com/developers/ebay/products/shopping-api
+open.api.ebay.com:
+    appid: DaneSmit-EbayList-SBX-de7ff2694-806474f9
+    version: 671
