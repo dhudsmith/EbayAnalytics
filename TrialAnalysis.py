@@ -83,7 +83,6 @@ plt = BoxPlot(data_sold, values = 'value', label= ['listingType','isShippingFree
               xlabel="(Listing Type, Free Shipping)",
               ylabel="Sale price ($)",
               color = 'listingType',
-              legend = True,
               outliers = False)
 
 # Save the plot
