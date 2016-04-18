@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.vars = {}
 
 @app.route('/', methods = ['GET'])
-def form_GET():
+def main():
     return redirect('/plot1')
 
 # @app.route('/', methods = ['POST'])
