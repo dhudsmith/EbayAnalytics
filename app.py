@@ -27,6 +27,11 @@ def plot2():
 
     return render_template('plot2.html')
 
+@app.route('/plot3', methods = ['GET'])
+def plot3():
+
+    return render_template('plot3.html')
+
 
 if __name__ == '__main__':
     app.run(port=33507, debug=True)
