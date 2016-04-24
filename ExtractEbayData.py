@@ -123,6 +123,7 @@ if __name__ == "__main__":
     api_request = {
         'keywords': u'MacBook Pro',
         'categoryId': u'111422',
+        'outputSelector':[u'SellerInfo', u'AspectHistogram'],
         'sortOrder': u'StartTimeNewest',
         'itemFilter': [
             {'name': 'Condition',
@@ -130,8 +131,10 @@ if __name__ == "__main__":
             {'name': 'AvailableTo',
              'value': 'US'},
             {'name': 'Currency',
-             'value': 'USD'}
-        ],
+             'value': 'USD'},
+            {'name': 'HideDuplicatedItems',
+             'value': 'true'}
+        ]
     }
 
     print("Finding samples for SDK version %s" % ebaysdk.get_version())

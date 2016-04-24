@@ -43,6 +43,10 @@ def simplify_listing_type(listing_type):
 
 data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
 
+#######################################################
+# Other preprocessing steps...
+#######################################################
+
 
 #######################################################
 # Reorder the columns
@@ -77,7 +81,7 @@ new_col_order = ['itemId',
 data = data[new_col_order]
 
 #######################################################
-# Write the data
+# Output
 #######################################################
 
 # Write the data frame to a file
