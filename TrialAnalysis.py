@@ -98,8 +98,8 @@ plt.toolbar_location = None
 
 
 # Save the plot
-# output_file("./templates/plot1.html")
-# show(plt)
+output_file("./templates/plot1_new.html")
+show(plt)
 
 #######################################################
 # Examine the effect of different factors on
@@ -171,5 +171,5 @@ plt2.toolbar_location = None
 
 plt2.y_range = Range1d(start=0,end=1)
 # Save the plot
-output_file("./templates/plot3.html")
+output_file("./templates/plot3_new.html")
 show(plt2)
