@@ -1,11 +1,13 @@
 import pandas as pd
 import numpy as np
+from sklearn import preprocessing
 import pprint as pp
 from bokeh.charts import Bar, BoxPlot, output_file, show
 from bokeh.models import Range1d
 from bokeh.io import hplot
 from bokeh.plotting import figure
 from datetime import datetime
+import time
 
 #######################################################
 # Read in the data
@@ -15,7 +17,8 @@ from datetime import datetime
 data = pd.read_csv('../../Data/ebay_data_cleaned.csv', index_col=False)
 
 #######################################################
-# Features: starred features will be encoded as digits
+# Encode categorical features:
+# starred features will be encoded as digits
 #######################################################
 # itemId
 # title
@@ -43,29 +46,41 @@ data = pd.read_csv('../../Data/ebay_data_cleaned.csv', index_col=False)
 # sellingState *
 # value
 
-#######################################################
-# Encode categorical variables
-#######################################################
+# These are the encoded features
+features_to_encode = ('productId_type', 'productId_value', 'conditionDisplayName', 'conditionId',
+                      'categoryId', 'categoryName', 'country', 'listingType', 'buyItNowAvailable',
+                      'bestOfferEnabled', 'topRatedListing', 'gift', 'paymentMethod', 'expeditedShipping',
+                      'expeditedShipping', 'shippingType', 'isShippingFree', 'returnsAccepted', 'sellingState')
 
-# takes a python list and returns the list where the categories are
-# mapped onto integers from 0 to <number unique categories> - 1
-def map_categories(column_cat):
-    unique_cat = column_cat.unique()
-    num_unique = len(unique_cat)
-    mapping = {}
-    # TODO: handle NaNs
-    for i in range(0,num_unique):
-        mapping[unique_cat[i]] = i
+# Convert them all to string for sorting
+for feat in features_to_encode:
+    data[feat] = [str(i) for i in data[feat]]
 
-    y=[]
-    for x in column_cat:
-        y.append(mapping.get(x))
+# This is the label encoder
+le = preprocessing.LabelEncoder()
 
-    return(y)
+# Encode all the features (This only makes sense for tree-based model!)
+for feat in features_to_encode:
+    le.fit(data[feat])
+    data[feat] = le.transform(data[feat])
 
 
 #######################################################
-# Test
+# Convert datetime fields to seconds since Jan 1, 1970, 00:00:00
+# TODO: convert datetimes to categorical variables, instead. e.g.: hour of day, day of week, month
 #######################################################
 
-pp.pprint(map_categories(data.conditionId))
+# A function for stripping datetime objects from strings
+def convert_datetime(datetime_string):
+    format = '%Y-%m-%dT%H:%M:%S.%fZ'
+    return datetime.strptime(datetime_string, format)
+
+# A function to convert datetime to seconds since Jan 1, 1970, 00:00:00
+def conv_sec(dt):
+    return(time.mktime(dt.timetuple()))
+
+# Convert all times to datetimes
+data['startTime'] = [conv_sec(convert_datetime(datetime_string)) for datetime_string in data['startTime']]
+data['endTime'] = [conv_sec(convert_datetime(datetime_string)) for datetime_string in data['endTime']]
+
+print(data.head())
