@@ -44,7 +44,7 @@ def simplify_listing_type(listing_type):
 data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
 
 #######################################################
-# Other preprocessing steps...
+# Encode categorical variables
 #######################################################
 
 
