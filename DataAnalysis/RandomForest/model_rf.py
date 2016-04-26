@@ -66,21 +66,45 @@ for feat in features_to_encode:
 
 
 #######################################################
-# Convert datetime fields to seconds since Jan 1, 1970, 00:00:00
-# TODO: convert datetimes to categorical variables, instead. e.g.: hour of day, day of week, month
+# Convert datetime fields categorical variables
 #######################################################
 
-# A function for stripping datetime objects from strings
-def convert_datetime(datetime_string):
+# Convert the times to the following categorical variables
+# Hour (0-23)
+# Weekday (0-6)
+# Monthday (0-[28-31])
+# Month (0-11)
+
+# First, get the datetime
+
+def to_dt(dt_str):
     format = '%Y-%m-%dT%H:%M:%S.%fZ'
-    return datetime.strptime(datetime_string, format)
+    return datetime.strptime(dt_str, format)
 
-# A function to convert datetime to seconds since Jan 1, 1970, 00:00:00
-def conv_sec(dt):
-    return(time.mktime(dt.timetuple()))
+# Start times:
+data['startHour'] = [to_dt(x).hour for x in data.startTime]
+data['startWeekday'] = [to_dt(x).weekday() for x in data.startTime]
+data['startMonthday'] = [to_dt(x).day for x in data.startTime]
+data['startMonth'] = [to_dt(x).month for x in data.startTime]
 
-# Convert all times to datetimes
-data['startTime'] = [conv_sec(convert_datetime(datetime_string)) for datetime_string in data['startTime']]
-data['endTime'] = [conv_sec(convert_datetime(datetime_string)) for datetime_string in data['endTime']]
+# End times:
+data['endHour'] = [to_dt(x).hour for x in data.endTime]
+data['endWeekday'] = [to_dt(x).weekday() for x in data.endTime]
+data['endMonthday'] = [to_dt(x).day for x in data.endTime]
+data['endMonth'] = [to_dt(x).month for x in data.endTime]
 
-print(data.head())
+#######################################################
+# Delete unwanted columns
+#######################################################
+
+data.drop(['itemId','title','startTime',
+           'endTime','postalCode','bidCount',
+           'topRatedListing','gift'],
+          axis=1, inplace=True)
+
+#######################################################
+# Output
+#######################################################
+
+# Write the data frame to a file
+data.to_csv("ebay_data_rf.csv", na_rep = "NA", index = False)
