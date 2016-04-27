@@ -1,6 +1,10 @@
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, roc_auc_score
 import pprint as pp
 from bokeh.charts import Bar, BoxPlot, output_file, show
 from bokeh.models import Range1d
@@ -14,97 +18,68 @@ import time
 #######################################################
 
 # Read in the pandas.DataFrame from csv
-data = pd.read_csv('../../Data/ebay_data_cleaned.csv', index_col=False)
+data = pd.read_csv('ebay_data_rf.csv', index_col=False)
+data.drop('value', axis=1, inplace=True)
 
 #######################################################
-# Encode categorical features:
-# starred features will be encoded as digits
-#######################################################
-# itemId
-# title
-# productId_type
-# productId_value *
-# conditionDisplayName *
-# conditionId *
-# categoryId *
-# categoryName *
-# startTime
-# endTime
-# postalCode
-# country *
-# listingType *
-# bidCount
-# buyItNowAvailable *
-# bestOfferEnabled *
-# topRatedListing *
-# gift *
-# paymentMethod *
-# expeditedShipping *
-# shippingType *
-# isShippingFree *
-# returnsAccepted *
-# sellingState *
-# value
-
-# These are the encoded features
-features_to_encode = ('productId_type', 'productId_value', 'conditionDisplayName', 'conditionId',
-                      'categoryId', 'categoryName', 'country', 'listingType', 'buyItNowAvailable',
-                      'bestOfferEnabled', 'topRatedListing', 'gift', 'paymentMethod', 'expeditedShipping',
-                      'expeditedShipping', 'shippingType', 'isShippingFree', 'returnsAccepted', 'sellingState')
-
-# Convert them all to string for sorting
-for feat in features_to_encode:
-    data[feat] = [str(i) for i in data[feat]]
-
-# This is the label encoder
-le = preprocessing.LabelEncoder()
-
-# Encode all the features (This only makes sense for tree-based model!)
-for feat in features_to_encode:
-    le.fit(data[feat])
-    data[feat] = le.transform(data[feat])
-
-
-#######################################################
-# Convert datetime fields categorical variables
+# Remove columns with zero variance
 #######################################################
 
-# Convert the times to the following categorical variables
-# Hour (0-23)
-# Weekday (0-6)
-# Monthday (0-[28-31])
-# Month (0-11)
-
-# First, get the datetime
-
-def to_dt(dt_str):
-    format = '%Y-%m-%dT%H:%M:%S.%fZ'
-    return datetime.strptime(dt_str, format)
-
-# Start times:
-data['startHour'] = [to_dt(x).hour for x in data.startTime]
-data['startWeekday'] = [to_dt(x).weekday() for x in data.startTime]
-data['startMonthday'] = [to_dt(x).day for x in data.startTime]
-data['startMonth'] = [to_dt(x).month for x in data.startTime]
-
-# End times:
-data['endHour'] = [to_dt(x).hour for x in data.endTime]
-data['endWeekday'] = [to_dt(x).weekday() for x in data.endTime]
-data['endMonthday'] = [to_dt(x).day for x in data.endTime]
-data['endMonth'] = [to_dt(x).month for x in data.endTime]
+selector = VarianceThreshold()
+selector.fit_transform(data)
 
 #######################################################
-# Delete unwanted columns
+# Separate target variable (saleStatus)
 #######################################################
 
-data.drop(['itemId','title','startTime',
-           'endTime','postalCode','bidCount',
-           'topRatedListing','gift'],
-          axis=1, inplace=True)
+y = data.sellingState
+data.drop('sellingState', axis=1, inplace=True)
 
 #######################################################
-# Output
+# Break data into train and test sets
 #######################################################
 
-# Write the data frame to a file
-data.to_csv("ebay_data_rf.csv", na_rep = "NA", index = False)
+X_train, X_test, y_train, y_test = train_test_split(
+    data, y, test_size=0.2, random_state=7
+)
+
+#######################################################
+# Train the random forest classifier
+#######################################################
+
+n_estimators = 10
+weights = {0: 2.5, 1: 1}
+clf = RandomForestClassifier(n_estimators,
+                             max_features=20,
+                             oob_score=True,
+                             class_weight=weights,
+                             warm_start=False)
+
+clf.fit(X_train,y_train)
+
+#######################################################
+# Test on the test set
+#######################################################
+
+# Test on the training set:
+y_test_pred = clf.predict(X_test)
+
+# Print the confusion matrix
+pp.pprint(confusion_matrix(y_test, y_test_pred))
+
+# Calculate the roc_auc score
+print('Overall AUC:', roc_auc_score(y_test, clf.predict_proba(X_test)[:,1]))
+
+#######################################################
+# Feature importances
+#######################################################
+
+cols = data.columns
+feature_scores = clf.feature_importances_
+
+score_card = pd.DataFrame.from_items([('Features', cols),('Scores', feature_scores)])
+
+score_card.sort('Scores', inplace=True, ascending=False)
+
+print(score_card)
+

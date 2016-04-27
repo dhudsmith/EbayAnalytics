@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
+from sklearn.feature_selection import VarianceThreshold
 import pprint as pp
 from bokeh.charts import Bar, BoxPlot, output_file, show
 from bokeh.models import Range1d
@@ -101,6 +102,7 @@ data.drop(['itemId','title','startTime',
            'endTime','postalCode','bidCount',
            'topRatedListing','gift'],
           axis=1, inplace=True)
+
 
 #######################################################
 # Output
