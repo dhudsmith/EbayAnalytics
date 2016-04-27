@@ -33,7 +33,7 @@ def plot3():
 
 @app.route('/livefeed', methods = ['GET'])
 def rf():
-    return render_template('livefeed.html')
+    return render_template('runningscore.html')
 
 # Main function
 if __name__ == '__main__':
