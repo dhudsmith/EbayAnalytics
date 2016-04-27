@@ -100,7 +100,7 @@ data['endMonth'] = [to_dt(x).month for x in data.endTime]
 
 data.drop(['itemId','title','startTime',
            'endTime','postalCode','bidCount',
-           'topRatedListing','gift'],
+           'topRatedListing','gift', 'categoryName', 'categoryId'],
           axis=1, inplace=True)
 
 

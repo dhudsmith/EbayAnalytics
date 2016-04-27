@@ -48,15 +48,18 @@ X = data.drop('sellingState', axis=1)
 # error trajectory during training.
 ensemble_clfs = [
     ("RandomForestClassifier, max_features='sqrt'",
-        RandomForestClassifier(warm_start=True, oob_score=True,
+        RandomForestClassifier(warm_start=True,
                                max_features="sqrt",
-                               random_state=RANDOM_STATE)),
-    ("RandomForestClassifier, max_features='log2'",
-        RandomForestClassifier(warm_start=True, max_features='log2',
                                oob_score=True,
                                random_state=RANDOM_STATE)),
+    # ("RandomForestClassifier, max_features='log2'",
+    #     RandomForestClassifier(warm_start=True,
+    #                            max_features='log2',
+    #                            oob_score=True,
+    #                            random_state=RANDOM_STATE)),
     ("RandomForestClassifier, max_features=None",
-        RandomForestClassifier(warm_start=True, max_features=None,
+        RandomForestClassifier(warm_start=True,
+                               max_features=None,
                                oob_score=True,
                                random_state=RANDOM_STATE))
 ]
@@ -66,7 +69,7 @@ error_rate = OrderedDict((label, []) for label, _ in ensemble_clfs)
 
 # Range of `n_estimators` values to explore.
 min_estimators = 20
-max_estimators = 40
+max_estimators = 200
 
 for label, clf in ensemble_clfs:
     for i in range(min_estimators, max_estimators + 1):
@@ -86,4 +89,5 @@ plt.xlim(min_estimators, max_estimators)
 plt.xlabel("n_estimators")
 plt.ylabel("OOB error rate")
 plt.legend(loc="upper right")
-plt.show()
+
+plt.savefig("../../static/OOB.png")

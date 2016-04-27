@@ -40,17 +40,17 @@ data.drop('sellingState', axis=1, inplace=True)
 #######################################################
 
 X_train, X_test, y_train, y_test = train_test_split(
-    data, y, test_size=0.2, random_state=7
+    data, y, test_size=0.25, random_state=7
 )
 
 #######################################################
 # Train the random forest classifier
 #######################################################
 
-n_estimators = 10
+n_estimators = 50
 weights = {0: 2.5, 1: 1}
 clf = RandomForestClassifier(n_estimators,
-                             max_features=20,
+                             max_features=None,
                              oob_score=True,
                              class_weight=weights,
                              warm_start=False)
@@ -79,7 +79,7 @@ feature_scores = clf.feature_importances_
 
 score_card = pd.DataFrame.from_items([('Features', cols),('Scores', feature_scores)])
 
-score_card.sort('Scores', inplace=True, ascending=False)
+score_card.sort_values(by = 'Scores', inplace=True, ascending=False)
 
 print(score_card)
 
