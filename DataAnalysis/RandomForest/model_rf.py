@@ -1,17 +1,11 @@
 import pandas as pd
-import numpy as np
-from sklearn import preprocessing
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, roc_auc_score
+from sklearn.externals import joblib
 import pprint as pp
-from bokeh.charts import Bar, BoxPlot, output_file, show
-from bokeh.models import Range1d
-from bokeh.io import hplot
-from bokeh.plotting import figure
-from datetime import datetime
-import time
+
 
 #######################################################
 # Read in the data
@@ -50,7 +44,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 n_estimators = 80
 weights = {0: 2.5, 1: 1}
 clf = RandomForestClassifier(n_estimators,
-                             max_features=None,
+                             max_features=7,
                              oob_score=True,
                              class_weight=weights,
                              warm_start=False)
@@ -83,3 +77,8 @@ score_card.sort_values(by = 'Scores', inplace=True, ascending=False)
 
 print(score_card)
 
+#######################################################
+# Persist the model
+#######################################################
+
+joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl')
