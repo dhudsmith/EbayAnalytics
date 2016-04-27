@@ -7,13 +7,6 @@ from bokeh.plotting import figure
 from datetime import datetime
 
 #######################################################
-# Read in the data
-#######################################################
-
-# Read in the pandas.DataFrame from csv
-data = pd.read_csv('../Data/ebay_data.csv', index_col=False)
-
-#######################################################
 # Add/simplify rows
 #######################################################
 
@@ -29,8 +22,6 @@ def is_free_shipping(shippingType):
         print("Warning: invalid shipping type!")
         return ('NaN')
 
-data['isShippingFree'] = [is_free_shipping(ship_type) for ship_type in data.loc[:, 'shippingType']]
-
 # Simplify listing types to Auction or Fixed Price
 def simplify_listing_type(listing_type):
     if listing_type in ['Auction', 'AuctionWithBIN']:
@@ -40,8 +31,6 @@ def simplify_listing_type(listing_type):
     else:
         print("Warning: invalid listing type!")
         return ('NaN')
-
-data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
 
 
 #######################################################
@@ -74,17 +63,6 @@ new_col_order = ['itemId',
                  'returnsAccepted',
                  'sellingState',
                  'value']
-data = data[new_col_order]
-
-
-
-
-#######################################################
-# Output
-#######################################################
-
-# Write the data frame to a file
-data.to_csv("../Data/ebay_data_cleaned.csv", na_rep = "NA", index = False)
 
 #######################################################
 # general preprocessing helper function
@@ -93,3 +71,5 @@ def preproc(data):
     data['isShippingFree'] = [is_free_shipping(ship_type) for ship_type in data.loc[:, 'shippingType']]
     data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
     data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
+
+    return(data)

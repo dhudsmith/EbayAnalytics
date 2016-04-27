@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template
+import requests
+
 
 app = Flask(__name__)
 
 # App variables
 app.vars = {}
 
+# Routing
 @app.route('/')
 def main():
     return render_template('main.html')
@@ -28,6 +31,13 @@ def plot3():
 def rf():
     return render_template('rf.html')
 
+def api_job(word):
+    print("This is a funny word:", word)
 
+# Main function
 if __name__ == '__main__':
     app.run(port=33507, debug=True)
+
+
+
+# result = q.enqueue(api_job, 'barf')
