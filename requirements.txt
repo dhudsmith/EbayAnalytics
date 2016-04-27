@@ -11,6 +11,3 @@ numpy==1.9.2
 scipy==0.15.1
 pandas==0.18.0
 scikit-learn==0.17.1
--e git+git://github.com/dhudsmith/EbayAnalytics.git#egg=/blob/master/ExtractEbayData.py#subdirectory=/blob/master/ExtractEbayData.py
--e git+git://github.com/dhudsmith/EbayAnalytics.git#egg=/blob/master/DataAnalysis/preproc.py#subdirectory=/blob/master/DataAnalysis/preproc.py
--e git+git://github.com/dhudsmith/EbayAnalytics.git#egg=/blob/master/DataAnalysis/RandomForest/preproc_rf.py#subdirectory=/blob/master/DataAnalysis/RandomForest/preproc_rf.py
