@@ -1,3 +1,4 @@
+import os
 import os.path
 from apscheduler.schedulers.blocking import BlockingScheduler
 from ExtractEbayData import request_completed_listings, get_relevant_data, init_options
@@ -9,7 +10,7 @@ from sklearn.metrics import confusion_matrix, roc_auc_score
 import numpy as np
 import pandas as pd
 import datetime
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 sched = BlockingScheduler()
 
@@ -62,8 +63,9 @@ def update_data(datetime, cmat, auc):
     tneg = cmat_norm[1,1]
     fpos = cmat_norm[1,0]
     fneg = cmat_norm[0,1]
+    acc = cmat_norm[0,0] + cmat_norm[1,1]
 
-    data = [{"Time": datetime, "True pos.": tpos, "False pos.":fpos,"True neg.": tneg, "False neg.":fneg, "ROC-AUC": auc }]
+    data = [{"Time": datetime, "True pos.": tpos, "False pos.":fpos,"True neg.": tneg, "False neg.":fneg, "ROC-AUC": auc , "Accuracy": acc}]
 
     # create a pandas dataframe with one row
     df = pd.DataFrame(data)
@@ -74,9 +76,36 @@ def update_data(datetime, cmat, auc):
     else:
         df.to_csv("static/running_data.csv", header=True, index= False)
 
+def to_dt(dt_str):
+    format = '%Y-%m-%d %H:%M:%S.%f'
+    return datetime.datetime.strptime(dt_str, format)
+
 def make_plots():
-    data = pd.read_csv("static/running_data.csv", index_col=False, header=True)
-    print(data.head())
+    data = pd.read_csv("static/running_data.csv", index_col=False)
+
+    time = [to_dt(x) for x in data.Time]
+    start_time = min(time)
+    end_time = max(time)
+
+    acc = data.Accuracy
+    auc = data["ROC-AUC"]
+
+    plt.plot(time, acc, label="Accuracy")
+    plt.plot(time, auc, label="ROC-AUC")
+
+
+    # plt.title("Live random forest scores")
+    plt.xlim(start_time, end_time)
+    plt.ylim(0.5,1)
+    plt.xlabel("Date")
+    plt.ylabel("Live scores")
+    plt.legend(loc="upper right")
+
+    # Delete old figure
+    os.remove("static/live_scores.png")
+
+    # Save figure to resources
+    plt.savefig("static/live_scores.png")
 
 
 @sched.scheduled_job('interval', seconds=20)
@@ -96,7 +125,7 @@ def timed_job():
     update_data(timestamp, cmat, auc)
 
     # Make new plots
-    # make_plots()
+    make_plots()
 
 
 sched.start()
