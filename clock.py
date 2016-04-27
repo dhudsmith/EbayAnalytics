@@ -9,7 +9,7 @@ from sklearn.metrics import confusion_matrix, roc_auc_score
 import numpy as np
 import pandas as pd
 import datetime
-import matplotlib.pyplot as plt
+from bokeh.plotting import figure, output_file, save
 
 sched = BlockingScheduler()
 
@@ -89,21 +89,19 @@ def make_plots():
     acc = data.Accuracy
     auc = data["ROC-AUC"]
 
-    plt.clf()
+    plot = figure(title='Live feed of random forest scores',
+                  x_axis_label='date',
+                  x_axis_type='datetime',
+                  y_axis_label='Random forest scores')
 
-    plt.plot(time, acc, label="Accuracy")
-    plt.plot(time, auc, label="ROC-AUC")
+    plot.multi_line(xs=[time,time], ys = [acc,auc], color = ['red','green'])
+
+    output_file("templates/runningscore.html")
+
+    save(plot)
 
 
-    # plt.title("Live random forest scores")
-    plt.xlim(start_time, end_time)
-    plt.ylim(0.5,1)
-    plt.xlabel("Date")
-    plt.ylabel("Live scores")
-    plt.legend(loc="upper right")
 
-    # Save figure to resources
-    plt.savefig("static/live_scores.png")
 
 
 @sched.scheduled_job('interval', seconds=20)

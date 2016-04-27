@@ -27,9 +27,13 @@ def plot3():
 
     return render_template('plot3.html')
 
-@app.route('/rf', methods = ['GET'])
+# @app.route('/rf', methods = ['GET'])
+# def rf():
+#     return render_template('rf.html')
+
+@app.route('/livefeed', methods = ['GET'])
 def rf():
-    return render_template('rf.html')
+    return render_template('livefeed.html')
 
 # Main function
 if __name__ == '__main__':
