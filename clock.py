@@ -94,7 +94,10 @@ def make_plots():
                   x_axis_type='datetime',
                   y_axis_label='Random forest scores')
 
-    plot.multi_line(xs=[time,time], ys = [acc,auc], color = ['red','green'])
+    plot.line(time, acc, color = 'red', legend='accuracy')
+    plot.line(time, auc, color='green', legend='ROC AUC')
+
+    plot.legend.orientation = "top_left"
 
     output_file("templates/runningscore.html")
 
