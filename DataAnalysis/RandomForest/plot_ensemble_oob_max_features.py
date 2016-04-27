@@ -74,7 +74,7 @@ for label, clf_err in error_rate.items():
     xs, ys = zip(*clf_err)
     plt.plot(xs, ys, label=label)
 
-plt.title("Depence of OOB error on number of features at each branch in tree (max_features)")
+plt.title("Depence of OOB error on 'max_features'")
 plt.xlim(min_par, max_par)
 plt.xlabel("max_features")
 plt.ylabel("OOB error rate")

@@ -29,3 +29,9 @@ body {
 head {
     text-align: left;
 }
+
+div.div1 {
+    max-width:500;
+    margin: auto;
+/*    border: 0px solid #73AD21;*/
+}

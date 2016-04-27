@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random forest model</title>
+   <link rel='stylesheet' type='text/css' href='/static/style.css'>
+
+</head>
+<body>
+
+    <h1>Random forest classifier</h1>
+    <div class="div1">
+        Can we use historical data to predict whether or not an ebay listing will sell?
+        Here we attempt to answer that question by modelling the historical data with
+        a random forest. The random forest fits a number of decision trees to the data
+        and averages over the trees to make predictions. In our case...
+    </div>
+
+
+    <h2>Model optimization</h2>
+    <p>
+        This plot shows the dependence of the "out-of-bag" (OOB)
+        error on the number of trees (n_estimator) in the random forest.
+        In general, ra
+    </p>
+    <img src='static/OOB_n_features.png'
+         width="800" height="600">
+    <img src='static/OOB_max_features.png'
+         width="800" height="600">
+
+</body>
+</html>
