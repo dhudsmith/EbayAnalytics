@@ -103,11 +103,7 @@ def make_plots():
 
     save(plot)
 
-
-
-
-
-@sched.scheduled_job('interval', seconds=20)
+@sched.scheduled_job('interval', minutes=1)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()
