@@ -83,14 +83,16 @@ def make_plots():
     data = pd.read_csv("static/running_data.csv", index_col=False)
 
     time = [to_dt(x) for x in data.Time]
-    start_time = min(time)
-    end_time = max(time)
+
+    dt = max(time)
+    last_time = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute)
+    x_name = "date (last updated: " + str(last_time) +")"
 
     acc = data.Accuracy
     auc = data["ROC-AUC"]
 
     plot = figure(title='Live feed of random forest scores',
-                  x_axis_label='date',
+                  x_axis_label=x_name,
                   x_axis_type='datetime',
                   y_axis_label='Random forest scores')
 
