@@ -20,8 +20,10 @@ error stabilizes.
 
 """
 import matplotlib.pyplot as plt
+
 from collections import OrderedDict
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 import pandas as pd
 
 # Author: Kian Ho <hui.kian.ho@gmail.com>
@@ -45,36 +47,25 @@ X = data.drop('sellingState', axis=1)
 # support for paralellised ensembles but is necessary for tracking the OOB
 # error trajectory during training.
 ensemble_clfs = [
-    ("RandomForestClassifier, max_features=5",
-        RandomForestClassifier(warm_start=True,
-                               max_features="sqrt",
+    ("RandomForestClassifier, max_features='sqrt'",
+        RandomForestClassifier(n_estimators = 140,
                                oob_score=True,
                                random_state=RANDOM_STATE)),
-    ("RandomForestClassifier, max_features=7",
-        RandomForestClassifier(warm_start=True,
-                               max_features=7,
-                               oob_score=True,
-                               random_state=RANDOM_STATE)),
-    ("RandomForestClassifier, max_features=21",
-        RandomForestClassifier(warm_start=True,
-                               max_features=None,
-                               oob_score=True,
-                               random_state=RANDOM_STATE))
 ]
 
 # Map a classifier name to a list of (<n_estimators>, <error rate>) pairs.
 error_rate = OrderedDict((label, []) for label, _ in ensemble_clfs)
 
 # Range of `n_estimators` values to explore.
-min_estimators = 40
-max_estimators = 180
+min_par = 3
+max_par = 21
 
 for label, clf in ensemble_clfs:
-    for i in range(min_estimators, max_estimators + 1):
-        clf.set_params(n_estimators=i)
+    for i in range(min_par, max_par + 1):
+        clf.set_params(max_features=i)
         clf.fit(X, y)
 
-        # Record the OOB error for each `n_estimators=i` setting.
+        # Record the OOB error for each `max_estimators=i` setting.
         oob_error = 1 - clf.oob_score_
         error_rate[label].append((i, oob_error))
 
@@ -83,10 +74,10 @@ for label, clf_err in error_rate.items():
     xs, ys = zip(*clf_err)
     plt.plot(xs, ys, label=label)
 
-plt.title("Dependence of OOB error on number of trees (n_estimators)")
-plt.xlim(min_estimators, max_estimators)
-plt.xlabel("n_estimators")
+plt.title("Depence of OOB error on number of features at each branch in tree (max_features)")
+plt.xlim(min_par, max_par)
+plt.xlabel("max_features")
 plt.ylabel("OOB error rate")
-plt.legend(loc="upper right")
+# plt.legend(loc="upper right")
 
-plt.savefig("../../static/OOB_n_features.png")
+plt.savefig("../../static/OOB_max_features.png")
