@@ -5,7 +5,6 @@ from ExtractEbayData import request_completed_listings, get_relevant_data, init_
 from DataAnalysis.preproc import preproc
 from DataAnalysis.RandomForest.preproc_rf import preproc_rf
 from sklearn.externals import joblib
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, roc_auc_score
 import numpy as np
 import pandas as pd
@@ -125,7 +124,6 @@ def timed_job():
 
     # Make new plots
     make_plots()
-
 
 sched.start()
 
