@@ -90,6 +90,8 @@ def make_plots():
     acc = data.Accuracy
     auc = data["ROC-AUC"]
 
+    plt.clf()
+
     plt.plot(time, acc, label="Accuracy")
     plt.plot(time, auc, label="ROC-AUC")
 
@@ -100,9 +102,6 @@ def make_plots():
     plt.xlabel("Date")
     plt.ylabel("Live scores")
     plt.legend(loc="upper right")
-
-    # Delete old figure
-    os.remove("static/live_scores.png")
 
     # Save figure to resources
     plt.savefig("static/live_scores.png")
