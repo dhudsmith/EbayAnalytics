@@ -329,7 +329,7 @@ def preproc_rf(data):
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-@sched.scheduled_job('interval', minutes=1)
+@sched.scheduled_job('interval', seconds=15)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()
