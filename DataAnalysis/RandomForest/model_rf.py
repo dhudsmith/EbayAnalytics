@@ -81,4 +81,4 @@ print(score_card)
 # Persist the model
 #######################################################
 
-joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl')
+joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl',protocol=2)

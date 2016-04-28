@@ -1,7 +1,7 @@
 import os
 import os.path
 from apscheduler.schedulers.blocking import BlockingScheduler
-import pickle
+from sklearn.externals import joblib
 from sklearn.metrics import confusion_matrix, roc_auc_score
 from sklearn import preprocessing
 import numpy as np
@@ -48,7 +48,7 @@ def api_request():
     return(listings)
 
 def predict_and_compare(X, y):
-    clf = pickle.load(open('static/model_pkl/rf_model_april_27_2016.pkl', 'rb'))
+    clf = joblib.load('static/model_pkl/rf_model_april_27_2016.pkl')
 
     y_pred = clf.predict(X)
 
