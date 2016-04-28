@@ -8,6 +8,6 @@ Flask-Cors==2.1.2
 gunicorn==19.4.5
 matplotlib==1.5.1
 numpy==1.9.1
-scipy==0.14.1
+scipy==0.14.0
 pandas==0.18.0
 scikit-learn==0.17.1
