@@ -126,8 +126,8 @@ if __name__ == "__main__":
         'outputSelector':[u'SellerInfo', u'AspectHistogram'],
         'sortOrder': u'StartTimeNewest',
         'itemFilter': [
-            {'name': 'Condition',
-             'value': 'Used'},
+            # {'name': 'Condition',
+            #  'value': 'Used'},
             {'name': 'AvailableTo',
              'value': 'US'},
             {'name': 'Currency',
@@ -147,8 +147,8 @@ if __name__ == "__main__":
 
     # Get the data from all the pages
     data_ls = []
-    for i in range(1, 20+1):
-        print(i/num_pages * 100, "% complete.")
+    for i in range(1, 100+1):
+        print(i, "% complete.")
 
         listings = request_completed_listings(opts, api_request, i)
 
@@ -159,6 +159,6 @@ if __name__ == "__main__":
     data = pd.concat(data_ls)
 
     # Print the data frame to a file
-    data.to_csv("./ebay_data.csv", na_rep = "NA", index = False)
+    data.to_csv("Data/ebay_data.csv", na_rep = "NA", index = False)
 
 

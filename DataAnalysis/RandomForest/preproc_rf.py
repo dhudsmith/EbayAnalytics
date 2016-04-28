@@ -102,7 +102,7 @@ def times_to_categorical(data):
 def delete_unwanted(data):
     data.drop(['itemId','title','startTime',
                'endTime','postalCode','bidCount',
-               'topRatedListing','gift', 'categoryName', 'categoryId','value'],
+               'topRatedListing','gift', 'categoryName', 'categoryId','value','startHour'],
               axis=1, inplace=True)
     return(data)
 

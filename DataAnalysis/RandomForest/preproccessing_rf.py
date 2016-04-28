@@ -98,11 +98,15 @@ data['endMonth'] = [to_dt(x).month for x in data.endTime]
 # Delete unwanted columns
 #######################################################
 
-data.drop(['itemId','title','startTime',
-           'endTime','postalCode','bidCount',
-           'topRatedListing','gift', 'categoryName', 'categoryId'],
-          axis=1, inplace=True)
+def delete_unwanted(data):
+    data.drop(['itemId','title','startTime',
+               'endTime','postalCode','bidCount',
+               'topRatedListing','gift', 'categoryName',
+               'categoryId','value','startHour'],
+              axis=1, inplace=True)
+    return(data)
 
+data = delete_unwanted(data)
 
 #######################################################
 # Output

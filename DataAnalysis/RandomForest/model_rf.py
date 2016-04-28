@@ -13,7 +13,8 @@ import pprint as pp
 
 # Read in the pandas.DataFrame from csv
 data = pd.read_csv('ebay_data_rf.csv', index_col=False)
-data.drop('value', axis=1, inplace=True)
+
+print(data.head())
 
 #######################################################
 # Remove columns with zero variance
@@ -41,10 +42,10 @@ X_train, X_test, y_train, y_test = train_test_split(
 # Train the random forest classifier
 #######################################################
 
-n_estimators = 80
-weights = {0: 2.5, 1: 1}
+n_estimators = 150
+weights = {0: 1, 1: 1}
 clf = RandomForestClassifier(n_estimators,
-                             max_features=7,
+                             max_features=None,
                              oob_score=True,
                              class_weight=weights,
                              warm_start=False)

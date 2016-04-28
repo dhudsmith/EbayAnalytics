@@ -24,8 +24,8 @@ def api_request():
         'outputSelector': [u'SellerInfo', u'AspectHistogram'],
         'sortOrder': u'StartTimeNewest',
         'itemFilter': [
-            {'name': 'Condition',
-             'value': 'Used'},
+            # {'name': 'Condition',
+            #  'value': 'Used'},
             {'name': 'AvailableTo',
              'value': 'US'},
             {'name': 'Currency',
@@ -53,9 +53,7 @@ def predict_and_compare(X, y):
     y_pred = clf.predict(X)
 
     cmat = confusion_matrix(y, y_pred)
-    auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-
-    print(cmat)
+    auc = roc_auc_score(y, clf.predict_proba(X)[:, 1], average="weighted")
 
     return [cmat, auc]
 
@@ -320,7 +318,8 @@ def times_to_categorical(data):
 def delete_unwanted(data):
     data.drop(['itemId','title','startTime',
                'endTime','postalCode','bidCount',
-               'topRatedListing','gift', 'categoryName', 'categoryId','value'],
+               'topRatedListing','gift', 'categoryName',
+               'categoryId','value', 'startHour'],
               axis=1, inplace=True)
     return(data)
 
