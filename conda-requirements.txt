@@ -2,5 +2,4 @@ scipy
 numpy
 pandas
 scikit-learn
-matplotlib
-bokeh
+
