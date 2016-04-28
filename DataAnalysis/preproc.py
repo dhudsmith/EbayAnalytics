@@ -1,11 +1,3 @@
-import pandas as pd
-import pprint as pp
-from bokeh.charts import Bar, BoxPlot, output_file, show
-from bokeh.models import Range1d
-from bokeh.io import hplot
-from bokeh.plotting import figure
-from datetime import datetime
-
 #######################################################
 # Add/simplify rows
 #######################################################
