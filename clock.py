@@ -48,7 +48,7 @@ def api_request():
     return(listings)
 
 def predict_and_compare(X, y):
-    clf = pickle.load('static/model_pkl/rf_model_april_27_2016.pkl')
+    clf = pickle.load(open('static/model_pkl/rf_model_april_27_2016.pkl', 'rb'))
 
     y_pred = clf.predict(X)
 
