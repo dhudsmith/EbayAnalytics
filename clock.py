@@ -11,6 +11,8 @@ from bokeh.plotting import figure, output_file, save
 from ebaysdk.finding import Connection as finding
 from ebaysdk.exception import ConnectionError
 from optparse import OptionParser
+import logging
+logging.basicConfig()
 
 sched = BlockingScheduler()
 
