@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, redirect
 
 app = Flask(__name__)
 
@@ -31,9 +31,9 @@ def plot3():
 
 @app.route('/livefeed', methods = ['GET'])
 def rf():
-    return render_template('runningscore.html')
+    return redirect(url_for('static', filename='runningscore.html'))
 
 # Main function
 if __name__ == '__main__':
-    app.run(port=33507, debug=False)
+    app.run(port=33507, debug=True)
 

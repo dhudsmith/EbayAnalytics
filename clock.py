@@ -104,7 +104,7 @@ def make_plots():
 
     plot.legend.orientation = "top_left"
 
-    output_file("templates/runningscore.html")
+    output_file("static/runningscore.html")
 
     save(plot)
 
