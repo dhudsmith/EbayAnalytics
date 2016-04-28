@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     # Get the data from all the pages
     data_ls = []
-    for i in range(1, num_pages+1):
+    for i in range(1, 20+1):
         print(i/num_pages * 100, "% complete.")
 
         listings = request_completed_listings(opts, api_request, i)

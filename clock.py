@@ -22,7 +22,7 @@ def api_request():
         'keywords': u'MacBook Pro',
         'categoryId': u'111422',
         'outputSelector': [u'SellerInfo', u'AspectHistogram'],
-        'sortOrder': u'EndTimeNewest',
+        'sortOrder': u'StartTimeNewest',
         'itemFilter': [
             {'name': 'Condition',
              'value': 'Used'},
@@ -54,6 +54,8 @@ def predict_and_compare(X, y):
 
     cmat = confusion_matrix(y, y_pred)
     auc = roc_auc_score(y, clf.predict_proba(X)[:, 1])
+
+    print(cmat)
 
     return [cmat, auc]
 
@@ -104,7 +106,7 @@ def make_plots():
 
     plot.legend.orientation = "top_left"
 
-    output_file("static/runningscore.html")
+    output_file("templates/runningscore.html")
 
     save(plot)
 

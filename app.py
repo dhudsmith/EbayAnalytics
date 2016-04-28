@@ -25,18 +25,18 @@ def plot3():
 
     return render_template('plot3.html')
 
-# @app.route('/rf', methods = ['GET'])
-# def rf():
-#     return render_template('rf.html')
+@app.route('/livefeed', methods = ['GET'])
+def rf():
+    return render_template('runningscore.html')
 
 # @app.route('/livefeed', methods = ['GET'])
 # def rf():
 #     return redirect(url_for('static', filename='runningscore.html'))
 
-@app.route('/<path:path>')
-def static_proxy(path):
-  # send_static_file will guess the correct MIME type
-  return app.send_static_file(path)
+# @app.route('/<path:path>')
+# def static_proxy(path):
+#   # send_static_file will guess the correct MIME type
+#   return app.send_static_file(path)
 
 # Main function
 if __name__ == '__main__':
