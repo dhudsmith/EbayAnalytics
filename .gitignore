@@ -63,8 +63,9 @@ target/
 
 # App specific files
 /Data
-/static/model_pkl
 /static/running_data.csv
 /static/OOB_max_features.png
 /static/OOB_n_features.png
 /jupyter/IPython-notebook-extensions
+.DS_Store
+.idea/

@@ -1,6 +1,6 @@
 from DataAnalysis.RandomForest.preproc_rf import preproc_rf
 from DataAnalysis.preproc import preproc
-import ExtractEbayData as ebay
+import ebay
 import os
 import os.path
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -17,28 +17,15 @@ sched = BlockingScheduler()
 
 def api_request():
     # Specify the API request
-    api_request = {
-        'keywords': u'MacBook Pro',
-        'categoryId': u'111422',
-        'outputSelector': [u'SellerInfo', u'AspectHistogram'],
-        'sortOrder': u'StartTimeNewest',
-        'itemFilter': [
-            # {'name': 'Condition',
-            #  'value': 'Used'},
-            {'name': 'AvailableTo',
-             'value': 'US'},
-            {'name': 'Currency',
-             'value': 'USD'},
-            {'name': 'HideDuplicatedItems',
-             'value': 'true'}
-        ],
-    }
-    api_request['paginationInput'] = {"entriesPerPage": 100,
+
+    api_dict = ebay.get_api_dict()
+
+    api_dict['paginationInput'] = {"entriesPerPage": 100,
                                       "pageNumber": 1}
 
     (opts, args) = ebay.init_options()
 
-    listings = ebay.get_relevant_data(ebay.request_completed_listings(opts, api_request=api_request)['searchResult']['item'])
+    listings = ebay.get_relevant_data(ebay.get_page(opts, api_request=api_dict)['searchResult']['item'])
 
     listings = preproc(listings)
 
@@ -110,7 +97,7 @@ def make_plots():
     plot.line(time, fp, color='red', legend='False positive')
     plot.line(time, fn, color='red', legend='False negative',line_dash=[4, 4])
 
-    plot.legend.orientation = "top_left"
+    plot.legend.location = "top_left"
 
     output_file("templates/runningscore.html")
 
@@ -120,7 +107,7 @@ def make_plots():
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-@sched.scheduled_job('interval', minutes=2)
+@sched.scheduled_job('interval', minutes=5)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()
