@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn import preprocessing
 from datetime import datetime
+from dateutil.parser import parse as parse
 
 
 #######################################################
@@ -68,22 +69,18 @@ def encode(data):
 
 # First, get the datetime
 
-def to_dt(dt_str):
-    format = '%Y-%m-%dT%H:%M:%S.%fZ'
-    return datetime.strptime(dt_str, format)
-
 def times_to_categorical(data):
     # Start times:
-    data['startHour'] = [to_dt(x).hour for x in data.startTime]
-    data['startWeekday'] = [to_dt(x).weekday() for x in data.startTime]
-    data['startMonthday'] = [to_dt(x).day for x in data.startTime]
-    data['startMonth'] = [to_dt(x).month for x in data.startTime]
+    data['startHour'] = [parse(x).hour for x in data.startTime]
+    data['startWeekday'] = [parse(x).weekday() for x in data.startTime]
+    data['startMonthday'] = [parse(x).day for x in data.startTime]
+    data['startMonth'] = [parse(x).month for x in data.startTime]
 
     # End times:
-    data['endHour'] = [to_dt(x).hour for x in data.endTime]
-    data['endWeekday'] = [to_dt(x).weekday() for x in data.endTime]
-    data['endMonthday'] = [to_dt(x).day for x in data.endTime]
-    data['endMonth'] = [to_dt(x).month for x in data.endTime]
+    data['endHour'] = [parse(x).hour for x in data.endTime]
+    data['endWeekday'] = [parse(x).weekday() for x in data.endTime]
+    data['endMonthday'] = [parse(x).day for x in data.endTime]
+    data['endMonth'] = [parse(x).month for x in data.endTime]
 
     return(data)
 

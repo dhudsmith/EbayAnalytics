@@ -1,4 +1,5 @@
 import pandas as pd
+import dateutil.parser
 
 #######################################################
 # Add/simplify rows

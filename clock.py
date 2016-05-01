@@ -25,7 +25,7 @@ def api_request():
 
     (opts, args) = ebay.init_options()
 
-    listings = ebay.get_relevant_data(ebay.get_page(opts, api_request=api_dict)['searchResult']['item'])
+    listings = ebay._get_relevant_data(ebay._get_page(opts, api_request=api_dict)['searchResult']['item'])
 
     listings = preproc(listings)
 
