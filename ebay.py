@@ -6,11 +6,14 @@ Licensed under CDDL 1.0
 '''
 
 from optparse import OptionParser
+from datetime import datetime as dt
 import dateutil.parser
 import pandas as pd
 import ebaysdk
 from ebaysdk.finding import Connection as finding
 from ebaysdk.exception import ConnectionError
+
+from pprint import pprint as pp
 
 #######################################################
 # Setup
@@ -40,7 +43,7 @@ def get_api_dict():
         'keywords': u'MacBook Pro',
         'categoryId': u'111422',
         'outputSelector': [u'SellerInfo', u'AspectHistogram'],
-        'sortOrder': u'StartTimeNewest',
+        'sortOrder': u'EndTimeNewest',
         'itemFilter': [
             {'name': 'AvailableTo',
              'value': 'US'},
@@ -112,7 +115,11 @@ def _get_relevant_data(listings):
                  # 'handlingTime': item['shippingInfo']['handlingTime'],
                  'shippingType': item['shippingInfo']['shippingType'],
                  'title': item['title'],
-                 'topRatedListing': item['topRatedListing'] == 'true'}
+                 'topRatedListing': item['topRatedListing'] == 'true',
+                 'feedbackRatingStar': _get_key_value(_get_key_value(item, 'sellerInfo'), 'feedbackRatingStar'),
+                 'feedbackScore': _get_key_value(_get_key_value(item, 'sellerInfo'), 'feedbackScore'),
+                 'positiveFeedbackPercent': _get_key_value(_get_key_value(item, 'sellerInfo'), 'positiveFeedbackPercent'),
+                 'topRatedSeller': _get_key_value(_get_key_value(item, 'sellerInfo'), 'topRatedSeller')}
         dicts.append(entry)
 
     return (pd.DataFrame(dicts))
@@ -122,7 +129,6 @@ def _get_key_value(dict, key):
         return (dict[key])
     else:
         return ('NA')
-
 
 #######################################################
 # API interface
@@ -142,8 +148,8 @@ def get_all(opts, api_request):
 
     # Get the data from all the pages
     data_ls = []
-    for i in range(1, 100 + 1):
-        print(i, "% complete.")
+    for i in range(1, num_pages + 1):
+        print(float(i)/num_pages * 100, "% complete.")
 
         listings = _get_page(opts, api_dict, i)
 
@@ -158,7 +164,7 @@ def get_all(opts, api_request):
 def get_all_before(opts, api_request, datetime_str):
 
     itemFilterVals = api_request['itemFilter']
-    itemFilterVals.append({'EndTimeTo', datetime_str})
+    itemFilterVals.append({'name': 'EndTimeTo', 'value': datetime_str})
 
     api_request['itemFilter'] = itemFilterVals
 
@@ -169,15 +175,77 @@ def get_all_before(opts, api_request, datetime_str):
 def get_all_after(opts, api_request, datetime_str):
 
     itemFilterVals = api_request['itemFilter']
-    itemFilterVals.append({'EndTimeFrom', datetime_str})
+    itemFilterVals.append({'name': 'EndTimeFrom', 'value': datetime_str})
 
     api_request['itemFilter'] = itemFilterVals
 
     return get_all(opts, api_request)
 
 #######################################################
-# API interface
+# Preprocessing
 #######################################################
+
+# Add a free shipping column
+def is_free_shipping(shippingType):
+    if shippingType in ['Calculated', 'Flat',
+                        'FreePickup', 'FlatDomesticCalculatedInternational',
+                        'CalculatedDomesticFlatInternational', 'NotSpecified']:
+        return (False)
+    elif shippingType == 'Free':
+        return (True)
+    else:
+        print("Warning: invalid shipping type!")
+        return ('NaN')
+
+# Simplify listing types to Auction or Fixed Price
+def simplify_listing_type(listing_type):
+    if listing_type in ['Auction', 'AuctionWithBIN']:
+        return ('Auction')
+    elif listing_type in ['FixedPrice', 'StoreInventory']:
+        return ('FixedPrice')
+    else:
+        print("Warning: invalid listing type!")
+        return ('NaN')
+
+def preproc(data):
+    data['isShippingFree'] = [is_free_shipping(ship_type) for ship_type in data.loc[:, 'shippingType']]
+    data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
+
+    new_col_order = ['itemId',
+                     'title',
+                     'productId_type',
+                     'productId_value',
+                     'conditionDisplayName',
+                     'conditionId',
+                     'categoryId',
+                     'categoryName',
+                     'startTime',
+                     'endTime',
+                     'postalCode',
+                     'country',
+                     'listingType',
+                     'bidCount',
+                     'buyItNowAvailable',
+                     'bestOfferEnabled',
+                     'topRatedListing',
+                     'gift',
+                     'paymentMethod',
+                     'expeditedShipping',
+                     'shippingType',
+                     'isShippingFree',
+                     'returnsAccepted',
+                     'topRatedListing',
+                     'feedbackRatingStar',
+                     'feedbackScore',
+                     'positiveFeedbackPercent',
+                     'topRatedSeller',
+                     'value',
+                     'sellingState'
+    ]
+
+    data = data[new_col_order]
+
+    return(data)
 
 #######################################################
 # Building the database
@@ -192,18 +260,24 @@ if __name__ == "__main__":
 
     # Get number of pages of entries
     num_pages = get_number_pages(opts, api_dict)
+    print("Number of pages:", num_pages)
     print("Number of entries:", 100*num_pages)
 
     # Get all of the listings in a data frame
-    data = get_all(opts, api_dict)
+    data = get_all_after(opts, api_dict, '2016-05-01T13:07:29.000Z')
 
-    # data = _get_relevant_data(_get_page(opts, api_dict)['searchResult']['item'])
-    #
-    # datetimes = [dateutil.parser.parse(x) for x in data['endTime']]
-    #
-    # print(datetimes)
+    print(data.shape)
+
+    # Preprocess the data
+    data = preproc(data)
+
+    print(data.shape)
+
+    print(data.head())
+
+
 
     # Print the data frame to a file
-    data.to_csv("Data/ebay_data.csv", na_rep = "NA", index = False)
+    # data.to_csv("Data/ebay_data.csv", na_rep = "NA", index = False)
 
 
