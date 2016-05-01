@@ -5,16 +5,8 @@ Authored by: Tim Keefer
 Licensed under CDDL 1.0
 '''
 
-import os
-import sys
 from optparse import OptionParser
-import pprint
 import pandas as pd
-
-sys.path.insert(0, '%s/../' % os.path.dirname(__file__))
-
-# from common import dump
-
 import ebaysdk
 from ebaysdk.finding import Connection as finding
 from ebaysdk.exception import ConnectionError

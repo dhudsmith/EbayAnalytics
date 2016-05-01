@@ -1,14 +1,6 @@
 import pandas as pd
-import numpy as np
 from sklearn import preprocessing
-from sklearn.feature_selection import VarianceThreshold
-import pprint as pp
-from bokeh.charts import Bar, BoxPlot, output_file, show
-from bokeh.models import Range1d
-from bokeh.io import hplot
-from bokeh.plotting import figure
 from datetime import datetime
-import time
 
 
 #######################################################
@@ -102,7 +94,9 @@ def times_to_categorical(data):
 def delete_unwanted(data):
     data.drop(['itemId','title','startTime',
                'endTime','postalCode','bidCount',
-               'topRatedListing','gift', 'categoryName', 'categoryId','value','startHour'],
+               'topRatedListing','gift', 'categoryName',
+               'categoryId','value','startHour','startMonth',
+               'endMonth','startMonthday','endMonthday','startWeekday'],
               axis=1, inplace=True)
     return(data)
 
@@ -113,3 +107,22 @@ def delete_unwanted(data):
 
 def preproc_rf(data):
     return delete_unwanted(times_to_categorical(encode(data)))
+
+#######################################################
+# Main
+#######################################################
+
+if __name__ == '__main__':
+    print("Reading from csv...")
+    data = pd.read_csv('../../Data/ebay_data_cleaned.csv', index_col=False)
+
+    print("Preprocessing...")
+    data = preproc_rf(data)
+
+    print("Final shape:", data.shape)
+
+    print("Writing to csv...")
+    data.to_csv("ebay_data_rf.csv", na_rep="NA", index=False)
+
+    print("Done.")
+

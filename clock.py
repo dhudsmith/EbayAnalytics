@@ -1,16 +1,15 @@
+from DataAnalysis.RandomForest.preproc_rf import preproc_rf
+from DataAnalysis.preproc import preproc
+import ExtractEbayData as ebay
 import os
 import os.path
 from apscheduler.schedulers.blocking import BlockingScheduler
 from sklearn.externals import joblib
 from sklearn.metrics import confusion_matrix, roc_auc_score
-from sklearn import preprocessing
 import numpy as np
 import pandas as pd
 import datetime
 from bokeh.plotting import figure, output_file, save
-from ebaysdk.finding import Connection as finding
-from ebaysdk.exception import ConnectionError
-from optparse import OptionParser
 import logging
 logging.basicConfig()
 
@@ -37,9 +36,9 @@ def api_request():
     api_request['paginationInput'] = {"entriesPerPage": 100,
                                       "pageNumber": 1}
 
-    (opts, args) = init_options()
+    (opts, args) = ebay.init_options()
 
-    listings = get_relevant_data(request_completed_listings(opts, api_request=api_request)['searchResult']['item'])
+    listings = ebay.get_relevant_data(ebay.request_completed_listings(opts, api_request=api_request)['searchResult']['item'])
 
     listings = preproc(listings)
 
@@ -93,14 +92,23 @@ def make_plots():
 
     acc = data.Accuracy
     auc = data["ROC-AUC"]
+    tp = data["True pos."]
+    tn = data["True neg."]
+    fp = data["False pos."]
+    fn = data["False neg."]
+
 
     plot = figure(title='Live feed of random forest scores',
                   x_axis_label=x_name,
                   x_axis_type='datetime',
                   y_axis_label='Random forest scores')
 
-    plot.line(time, acc, color = 'red', legend='accuracy')
-    plot.line(time, auc, color='green', legend='ROC AUC')
+    plot.line(time, acc, color = 'black', legend='accuracy', line_width=3)
+    plot.line(time, auc, color='blue', legend='ROC AUC', line_width=3)
+    plot.line(time, tp, color='green', legend='True positive')
+    plot.line(time, tn, color='green', legend='True negative',line_dash=[4, 4])
+    plot.line(time, fp, color='red', legend='False positive')
+    plot.line(time, fn, color='red', legend='False negative',line_dash=[4, 4])
 
     plot.legend.orientation = "top_left"
 
@@ -109,228 +117,10 @@ def make_plots():
     save(plot)
 
 ##################################################
-# ExtractEbayData
-##################################################
-
-def init_options():
-    usage = "usage: %prog [options]"
-    parser = OptionParser(usage=usage)
-
-    parser.add_option("-d", "--debug",
-                      action="store_true", dest="debug", default=False,
-                      help="Enabled debugging [default: %default]")
-    parser.add_option("-y", "--yaml",
-                      dest="yaml", default='ebay.yaml',
-                      help="Specifies the name of the YAML defaults file. [default: %default]")
-    parser.add_option("-a", "--appid",
-                      dest="appid", default=None,
-                      help="Specifies the eBay application id to use.")
-
-    (opts, args) = parser.parse_args()
-    return opts, args
-
-
-def get_number_pages(opts, api_request):
-
-    try:
-        api = finding(debug=opts.debug, appid=opts.appid,
-                      config_file=opts.yaml, warnings=True)
-
-
-
-        # Strip the list of results
-        response = int(api.execute('findCompletedItems', api_request).dict()['paginationOutput']['totalPages'])
-
-        return(response)
-
-        # dump(api)
-    except ConnectionError as e:
-        print(e)
-        print(e.response.dict())
-
-def request_completed_listings(opts, api_request, page_number=1):
-
-    api_request['paginationInput'] = {"entriesPerPage": 100,
-                                      "pageNumber": page_number}
-
-    try:
-        api = finding(debug=opts.debug, appid=opts.appid,
-                      config_file=opts.yaml, warnings=True)
-
-
-
-        # Strip the list of results
-        response = api.execute('findCompletedItems', api_request).dict()
-
-        return(response)
-
-        # dump(api)
-    except ConnectionError as e:
-        print(e)
-        print(e.response.dict())
-
-# Should return a pandas df
-def get_relevant_data(listings):
-
-    dicts = []
-    for item in listings:
-        entry = {'conditionDisplayName': item['condition']['conditionDisplayName'],
-                 'conditionId': item['condition']['conditionId'],
-                 'country': item['country'],
-                 'itemId': item['itemId'],
-                 'bestOfferEnabled': item['listingInfo']['bestOfferEnabled'] == 'true',
-                 'buyItNowAvailable': item['listingInfo']['buyItNowAvailable'] == 'true',
-                 'gift': item['listingInfo']['gift'] == 'true',
-                 'listingType': item['listingInfo']['listingType'],
-                 'startTime': item['listingInfo']['startTime'],
-                 'endTime': item['listingInfo']['endTime'],
-                 # item['location'],
-                 'paymentMethod': item['paymentMethod'],
-                 'postalCode': get_key_value(item, 'postalCode'),
-                 'categoryId': item['primaryCategory']['categoryId'],
-                 'categoryName': item['primaryCategory']['categoryName'],
-                 'productId_type':  get_key_value(get_key_value(item, 'productId'),'_type'),
-                 'productId_value':  get_key_value(get_key_value(item, 'productId'),'value'),
-                 'returnsAccepted': item['returnsAccepted'] == 'true',
-                 'value': float(item['sellingStatus']['currentPrice']['value']),
-                 'bidCount': get_key_value(get_key_value(item, 'sellingStatus'), 'bidCount'),
-                 'sellingState': item['sellingStatus']['sellingState'],
-                 'expeditedShipping': item['shippingInfo']['expeditedShipping'] == 'true',
-                 # 'handlingTime': item['shippingInfo']['handlingTime'],
-                 'shippingType': item['shippingInfo']['shippingType'],
-                 'title': item['title'],
-                 'topRatedListing': item['topRatedListing'] == 'true'}
-        dicts.append(entry)
-
-    return(pd.DataFrame(dicts))
-
-def get_key_value(dict, key):
-    if key in dict:
-        return(dict[key])
-    else:
-        return('NA')
-
-##################################################
-# DataAnalysis.preproc
-##################################################
-
-# Add a free shipping column
-def is_free_shipping(shippingType):
-    if shippingType in ['Calculated', 'Flat',
-                        'FreePickup', 'FlatDomesticCalculatedInternational',
-                        'CalculatedDomesticFlatInternational', 'NotSpecified']:
-        return (False)
-    elif shippingType == 'Free':
-        return (True)
-    else:
-        print("Warning: invalid shipping type!")
-        return ('NaN')
-
-# Simplify listing types to Auction or Fixed Price
-def simplify_listing_type(listing_type):
-    if listing_type in ['Auction', 'AuctionWithBIN']:
-        return ('Auction')
-    elif listing_type in ['FixedPrice', 'StoreInventory']:
-        return ('FixedPrice')
-    else:
-        print("Warning: invalid listing type!")
-        return ('NaN')
-
-# Reorder the columns in a reasonable way
-new_col_order = ['itemId',
-                 'title',
-                 'productId_type',
-                 'productId_value',
-                 'conditionDisplayName',
-                 'conditionId',
-                 'categoryId',
-                 'categoryName',
-                 'startTime',
-                 'endTime',
-                 'postalCode',
-                 'country',
-                 'listingType',
-                 'bidCount',
-                 'buyItNowAvailable',
-                 'bestOfferEnabled',
-                 'topRatedListing',
-                 'gift',
-                 'paymentMethod',
-                 'expeditedShipping',
-                 'shippingType',
-                 'isShippingFree',
-                 'returnsAccepted',
-                 'sellingState',
-                 'value']
-
-def preproc(data):
-    data['isShippingFree'] = [is_free_shipping(ship_type) for ship_type in data.loc[:, 'shippingType']]
-    data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
-    data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
-
-    return(data)
-
-##################################################
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-
-def encode(data):
-    # These are the encoded features
-    features_to_encode = ('productId_type', 'productId_value', 'conditionDisplayName', 'conditionId',
-                          'categoryId', 'categoryName', 'country', 'listingType', 'buyItNowAvailable',
-                          'bestOfferEnabled', 'topRatedListing', 'gift', 'paymentMethod', 'expeditedShipping',
-                          'expeditedShipping', 'shippingType', 'isShippingFree', 'returnsAccepted', 'sellingState')
-
-    # Convert them all to string for sorting
-    for feat in features_to_encode:
-        data[feat] = [str(i) for i in data[feat]]
-
-    # This is the label encoder
-    le = preprocessing.LabelEncoder()
-
-    # Encode all the features (This only makes sense for tree-based model!)
-    for feat in features_to_encode:
-        le.fit(data[feat])
-        data[feat] = le.transform(data[feat])
-
-    return(data)
-
-def to_dt_ebay(dt_str):
-    format = '%Y-%m-%dT%H:%M:%S.%fZ'
-    return datetime.datetime.strptime(dt_str, format)
-
-def times_to_categorical(data):
-    # Start times:
-    data['startHour'] = [to_dt_ebay(x).hour for x in data.startTime]
-    data['startWeekday'] = [to_dt_ebay(x).weekday() for x in data.startTime]
-    data['startMonthday'] = [to_dt_ebay(x).day for x in data.startTime]
-    data['startMonth'] = [to_dt_ebay(x).month for x in data.startTime]
-
-    # End times:
-    data['endHour'] = [to_dt_ebay(x).hour for x in data.endTime]
-    data['endWeekday'] = [to_dt_ebay(x).weekday() for x in data.endTime]
-    data['endMonthday'] = [to_dt_ebay(x).day for x in data.endTime]
-    data['endMonth'] = [to_dt_ebay(x).month for x in data.endTime]
-
-    return(data)
-
-def delete_unwanted(data):
-    data.drop(['itemId','title','startTime',
-               'endTime','postalCode','bidCount',
-               'topRatedListing','gift', 'categoryName',
-               'categoryId','value', 'startHour'],
-              axis=1, inplace=True)
-    return(data)
-
-def preproc_rf(data):
-    return delete_unwanted(times_to_categorical(encode(data)))
-
-##################################################
-# DataAnalysis.RandomForest.preproc_rf
-##################################################
-
-@sched.scheduled_job('interval', seconds=15)
+@sched.scheduled_job('interval', minutes=2)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()

@@ -1,3 +1,5 @@
+import pandas as pd
+
 #######################################################
 # Add/simplify rows
 #######################################################
@@ -62,6 +64,24 @@ new_col_order = ['itemId',
 def preproc(data):
     data['isShippingFree'] = [is_free_shipping(ship_type) for ship_type in data.loc[:, 'shippingType']]
     data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
-    data['listingType'] = [simplify_listing_type(list_type) for list_type in data.loc[:, 'listingType']]
+    data = data[new_col_order]
 
     return(data)
+
+
+#######################################################
+# Main
+#######################################################
+if __name__ == '__main__':
+    print("Reading from csv...")
+    data = pd.read_csv('../Data/ebay_data.csv', index_col=False)
+
+    print("Preprocessing...")
+    data = preproc(data)
+
+    print("Final shape:", data.shape)
+
+    print("Writing to csv...")
+    data.to_csv("../Data/ebay_data_cleaned.csv", na_rep="NA", index=False)
+
+    print("Done.")
