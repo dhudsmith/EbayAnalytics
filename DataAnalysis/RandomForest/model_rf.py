@@ -5,7 +5,6 @@ from sklearn.metrics import confusion_matrix, roc_auc_score
 from sklearn.externals import joblib
 import pprint as pp
 
-
 #######################################################
 # Read in the data
 #######################################################
@@ -79,4 +78,4 @@ print(score_card)
 # Persist the model
 #######################################################
 
-joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl',protocol=2)
+# joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl',protocol=2)
