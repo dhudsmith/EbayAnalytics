@@ -1,5 +1,4 @@
 from DataAnalysis.RandomForest.preproc_rf import preproc_rf
-from DataAnalysis.preproc import preproc
 import ebay
 import os
 import os.path
@@ -10,6 +9,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from bokeh.plotting import figure, output_file, save
+from bokeh.models import Range1d
 import logging
 logging.basicConfig()
 
@@ -27,7 +27,7 @@ def api_request():
 
     listings = ebay._get_relevant_data(ebay._get_page(opts, api_request=api_dict)['searchResult']['item'])
 
-    listings = preproc(listings)
+    listings = ebay.preproc(listings)
 
     listings = preproc_rf(listings)
 
@@ -99,6 +99,8 @@ def make_plots():
 
     plot.legend.location = "top_left"
 
+    plot.y_range = Range1d(0,1)
+
     output_file("templates/runningscore.html")
 
     save(plot)
@@ -107,7 +109,7 @@ def make_plots():
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-@sched.scheduled_job('interval', minutes=5)
+@sched.scheduled_job('interval', minutes=3)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()

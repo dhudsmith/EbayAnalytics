@@ -15,31 +15,6 @@ data = pd.read_csv('ebay_data_rf.csv', index_col=False)
 
 print("Initial shape: ", data.shape)
 
-# #######################################################
-# # Remove columns with zero variance
-# #######################################################
-#
-# selector = VarianceThreshold()
-# selector.fit_transform(data)
-#
-# print("Shape after constant columns removed: ", data.shape)
-#
-# #######################################################
-# # Remove duplicate rows
-# #######################################################
-# colsToRemove = []
-# columns = data.columns
-# for i in range(len(columns)-1):
-#     v = data[columns[i]].values
-#     for j in range(i+1,len(columns)):
-#         if np.array_equal(v,data[columns[j]].values):
-#             colsToRemove.append(columns[j])
-#
-# data.drop(colsToRemove, axis=1, inplace=True)
-#
-# print("Shape after duplicate columns removed: ", data.shape)
-# print("Columns removed: ", colsToRemove)
-
 #######################################################
 # Separate target variable (saleStatus)
 #######################################################
@@ -59,18 +34,18 @@ X_train, X_test, y_train, y_test = train_test_split(
 # Train the model
 #######################################################
 
-# n_estimators = 80
-# weights = {0: 2, 1: 1}
-# clf = RandomForestClassifier(n_estimators,
-#                              max_features=7,
-#                              oob_score=False,
-#                              class_weight=weights,
-#                              warm_start=False)
+n_estimators = 200
+weights = {0: 0.5, 1: 1}
+clf = RandomForestClassifier(n_estimators,
+                             max_features=None,
+                             oob_score=False,
+                             class_weight=weights,
+                             warm_start=False)
 
-clf = GradientBoostingClassifier(loss='exponential',
-                                 n_estimators = 400,
-                                 max_depth=10,
-                                 max_leaf_nodes=15)
+# clf = GradientBoostingClassifier(loss='exponential',
+#                                  n_estimators = 400,
+#                                  max_depth=10,
+#                                  max_leaf_nodes=15)
 
 clf.fit(X_train,y_train)
 

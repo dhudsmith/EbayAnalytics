@@ -1,6 +1,7 @@
 import pandas as pd
+import numpy as np
 from sklearn import preprocessing
-from datetime import datetime
+from sklearn.feature_selection import VarianceThreshold
 from dateutil.parser import parse as parse
 
 
@@ -40,7 +41,8 @@ def encode(data):
     features_to_encode = ('productId_type', 'productId_value', 'conditionDisplayName', 'conditionId',
                           'categoryId', 'categoryName', 'country', 'listingType', 'buyItNowAvailable',
                           'bestOfferEnabled', 'topRatedListing', 'gift', 'paymentMethod', 'expeditedShipping',
-                          'expeditedShipping', 'shippingType', 'isShippingFree', 'returnsAccepted', 'sellingState')
+                          'expeditedShipping', 'shippingType', 'isShippingFree', 'returnsAccepted', 'sellingState',
+                          'feedbackRatingStar', 'topRatedSeller')
 
     # Convert them all to string for sorting
     for feat in features_to_encode:
@@ -56,6 +58,16 @@ def encode(data):
 
     return(data)
 
+#######################################################
+# Set value to zero for auction items
+#######################################################
+
+def set_auction_value_zero(record):
+    print(record)
+    if record['listingType']=='Auction':
+        return 0
+    else:
+        return record['value']
 
 #######################################################
 # Convert datetime fields categorical variables
@@ -92,18 +104,52 @@ def delete_unwanted(data):
     data.drop(['itemId','title','startTime',
                'endTime','postalCode','bidCount',
                'topRatedListing','gift', 'categoryName',
-               'categoryId','value','startHour','startMonth',
+               'categoryId','startHour','startMonth',
                'endMonth','startMonthday','endMonthday','startWeekday'],
               axis=1, inplace=True)
     return(data)
 
+#######################################################
+# Remove columns with zero variance
+#######################################################
+
+def remove_const(data):
+    selector = VarianceThreshold()
+    selector.fit_transform(data)
+
+    return data
+
+#######################################################
+# Remove duplicate columns
+#######################################################
+
+def remove_duplicate_cols(data):
+    colsToRemove = []
+    columns = data.columns
+    for i in range(len(columns)-1):
+        v = data[columns[i]].values
+        for j in range(i+1,len(columns)):
+            if np.array_equal(v,data[columns[j]].values):
+                colsToRemove.append(columns[j])
+
+    data.drop(colsToRemove, axis=1, inplace=True)
+
+    return data
 
 #######################################################
 # Helper
 #######################################################
 
 def preproc_rf(data):
-    return delete_unwanted(times_to_categorical(encode(data)))
+    data = encode(data)
+    data = times_to_categorical(data)
+    data = delete_unwanted(data)
+    data = remove_const(data)
+    data = remove_duplicate_cols(data)
+
+    return(data)
+
+
 
 #######################################################
 # Main
@@ -111,14 +157,21 @@ def preproc_rf(data):
 
 if __name__ == '__main__':
     print("Reading from csv...")
-    data = pd.read_csv('../../Data/ebay_data_cleaned.csv', index_col=False)
+    data = pd.read_csv('../../Data/ebay_data.csv', index_col=False)
 
     print("Preprocessing...")
     data = preproc_rf(data)
 
     print("Final shape:", data.shape)
 
-    print("Writing to csv...")
+    # print(data.head()['value'])
+    # data['value'] = [set_auction_value_zero(x) for x in data.head()]
+    # print(data.head()['value'])
+
+
+    # print(data.columns)
+    #
+    # print("Writing to csv...")
     data.to_csv("ebay_data_rf.csv", na_rep="NA", index=False)
 
     print("Done.")
