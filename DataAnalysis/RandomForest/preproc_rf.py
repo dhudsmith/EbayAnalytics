@@ -63,8 +63,7 @@ def encode(data):
 #######################################################
 
 def set_auction_value_zero(record):
-    print(record)
-    if record['listingType']=='Auction':
+    if record['listingType'] == 'Auction':
         return 0
     else:
         return record['value']
@@ -141,11 +140,10 @@ def remove_duplicate_cols(data):
 #######################################################
 
 def preproc_rf(data):
+    data['value'] = data.apply(set_auction_value_zero, axis=1)
     data = encode(data)
     data = times_to_categorical(data)
     data = delete_unwanted(data)
-    data = remove_const(data)
-    data = remove_duplicate_cols(data)
 
     return(data)
 
@@ -164,13 +162,6 @@ if __name__ == '__main__':
 
     print("Final shape:", data.shape)
 
-    # print(data.head()['value'])
-    # data['value'] = [set_auction_value_zero(x) for x in data.head()]
-    # print(data.head()['value'])
-
-
-    # print(data.columns)
-    #
     # print("Writing to csv...")
     data.to_csv("ebay_data_rf.csv", na_rep="NA", index=False)
 
