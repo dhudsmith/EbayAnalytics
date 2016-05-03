@@ -163,7 +163,7 @@ if __name__ == '__main__':
     print("Final shape:", data.shape)
 
     # print("Writing to csv...")
-    data.to_csv("ebay_data_rf.csv", na_rep="NA", index=False)
+    data.to_csv("ebay_data_rf_endtime.csv", na_rep="NA", index=False)
 
     print("Done.")
 

@@ -7,13 +7,15 @@ Licensed under CDDL 1.0
 
 from optparse import OptionParser
 from datetime import datetime as dt
-import dateutil.parser
+from dateutil.parser import parse
 import pandas as pd
 import ebaysdk
 from ebaysdk.finding import Connection as finding
 from ebaysdk.exception import ConnectionError
+from math import ceil
 
 from pprint import pprint as pp
+from pprint import pformat
 
 
 #######################################################
@@ -42,7 +44,7 @@ def init_options():
 #######################################################
 def get_api_dict():
     api_request = {
-        'keywords': u'MacBook Pro',
+        'keywords': u'MacBook',
         'categoryId': u'111422',
         'outputSelector': [u'SellerInfo', u'AspectHistogram'],
         'sortOrder': u'EndTimeNewest',
@@ -53,6 +55,10 @@ def get_api_dict():
              'value': 'USD'},
             {'name': 'HideDuplicatedItems',
              'value': 'true'}
+        ],
+        'aspectFilter': [
+            {'aspectName': 'Product Family',
+             'aspectValueName': 'MacBook Pro'}
         ]
     }
 
@@ -137,24 +143,30 @@ def _get_key_value(dict, key):
 # API interface
 #######################################################
 def get_number_pages(opts, api_request):
-    # return _get_page(opts, api_request)['paginationOutput']['totalPages']
     return int(_get_page(opts, api_request)['paginationOutput']['totalPages'])
 
 
-# This gets up to 10,000 items matching the API request
-# The item limit is enforced by the ebay API
-def get_all(opts, api_request):
+# This gets up to 100 pages of items matching the API request
+# Since each page can have up to 100 items, this call returns a maximum of
+# 10,000 listings. This limit is enforced by the ebay API
+def get_all_100(opts, api_request):
     num_pages = get_number_pages(opts, api_request)
 
     if num_pages > 100:
         num_pages = 100
+
+    ##
+    ##
+    # num_pages=2
+    ##
+    ##
 
     # Get the data from all the pages
     data_ls = []
     for i in range(1, num_pages + 1):
         print(int(float(i) / num_pages * 100), "% complete.")
 
-        listings = _get_page(opts, api_dict, i)
+        listings = _get_page(opts, api_request, i)
 
         if 'searchResult' in listings:
             data_ls.append(_get_relevant_data(listings['searchResult']['item']))
@@ -165,25 +177,64 @@ def get_all(opts, api_request):
 
 # Get all listings that ended before the input datetime
 # GMT of the form "YYYY-MM-DDTHH:MM:SS.SSSZ"
-def get_all_before(opts, api_request, datetime_str):
-    itemFilterVals = api_request['itemFilter']
-    itemFilterVals.append({'name': 'EndTimeTo', 'value': datetime_str})
+def get_100_before(opts, api_request, datetime_str):
+    item_filter_vals = api_request['itemFilter']
+    item_filter_vals = [x for x in item_filter_vals if not x['name']=='EndTimeTo']
+    item_filter_vals.append({'name': 'EndTimeTo', 'value': datetime_str})
+    api_request['itemFilter'] = item_filter_vals
 
-    api_request['itemFilter'] = itemFilterVals
-
-    return get_all(opts, api_request)
+    return get_all_100(opts, api_request)
 
 
 # Get all listings that ended after the input datetime
 # GMT of the form "YYYY-MM-DDTHH:MM:SS.SSSZ"
-def get_all_after(opts, api_request, datetime_str):
-    itemFilterVals = api_request['itemFilter']
-    itemFilterVals.append({'name': 'EndTimeFrom', 'value': datetime_str})
+def get_100_after(opts, api_request, datetime_str):
+    item_filter_vals = api_request['itemFilter']
+    item_filter_vals = [x for x in item_filter_vals if not x['name']=='EndTimeTo']
+    item_filter_vals.append({'name': 'EndTimeFrom', 'value': datetime_str})
+    api_request['itemFilter'] = item_filter_vals
 
-    api_request['itemFilter'] = itemFilterVals
+    return get_all_100(opts, api_request)
 
-    return get_all(opts, api_request)
+# This function gets around the ebay api limitation of 10,000 items
+# by making multiple api calls until all items are fetched. This
+# can take a while depending on how many items meet the search
+# criteria specified by api_request.
+def get_all(opts, api_request):
+    # Get the initial number of pages
 
+    # Get the current time
+    now = dt.utcnow()
+    now_str = now.isoformat("T")[:-3] + "Z"
+
+    time_str = now_str
+
+    item_filter_vals = api_request['itemFilter']
+    item_filter_vals = [x for x in item_filter_vals if not x['name']=='EndTimeTo']
+    item_filter_vals.append({'name': 'EndTimeTo', 'value': now_str})
+    api_request['itemFilter'] = item_filter_vals
+
+    # Get the total number of pages of listings
+    num_pages = get_number_pages(opts, api_request)
+
+    # The number of calls required to get all the pages is the
+    # ceiling of the number of pages divided by 100 (e.g. 463 pages
+    # requires 5 api calls each fetching (100, 100, 100, 100, 63) pages.
+    num_calls = int( ceil( num_pages/100.0 ) )
+
+    # Make the first call:
+    print "Call 1 of", num_calls, ":"
+    data = get_100_before(opts, api_request, now_str)
+
+    # Loop api calls to get all data:
+    data_ls = [data]
+    for i in range(1, num_calls):
+        print "Call", 1+i, "of" , num_calls, ":"
+        oldest_str = data_ls[i-1]['endTime'].iloc[-1]
+        data_ls.append(get_100_before(opts, api_request, oldest_str))
+    # return pd.concat(data_ls)
+
+    return pd.concat(data_ls)
 
 #######################################################
 # Preprocessing
@@ -254,6 +305,9 @@ def preproc(data):
 
 
 
+
+
+
 #######################################################
 # Building the database
 #######################################################
@@ -262,18 +316,38 @@ if __name__ == "__main__":
     print("Finding samples for SDK version %s" % ebaysdk.get_version())
     (opts, args) = init_options()
 
-    api_dict = get_api_dict()
+    api_request = get_api_dict()
+
+    # Save one page for reference
+    with open('Documents/PageExample.txt', 'w') as fout:
+        pp(_get_page(opts, api_request), fout)
 
     # Get number of pages of entries
-    num_pages = get_number_pages(opts, api_dict)
+    num_pages = get_number_pages(opts, api_request)
     print("Number of pages:", num_pages)
     print("Number of entries:", 100 * num_pages)
 
     # Get all of the listings in a data frame
-    data = get_all(opts, api_dict)
+    data = get_all(opts, api_request)
 
     # Preprocess the data
     data = preproc(data)
 
+
     # Print the data frame to a file
-    data.to_csv("Data/ebay_data.csv", na_rep="NA", index=False)
+    data.to_csv("Data/ebay_data.csv", na_rep="NA", index=False, encoding='utf-8')
+
+    # data = get_all(opts, api_dict)
+    #
+    # now = dt.utcnow()
+    # now_str = now.isoformat("T")[:-3] + "Z"
+    #
+    # time_str = now_str
+    #
+    # item_filter_vals = api_request['itemFilter']
+    # item_filter_vals.append({'name': 'EndTimeTo', 'value': now_str})
+    # api_request['itemFilter'] = item_filter_vals
+    #
+    # pp(_get_page(opts, api_request, 1)['paginationOutput'])
+
+    # print(data.head(10), data.endDate)

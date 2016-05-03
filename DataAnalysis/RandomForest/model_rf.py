@@ -34,7 +34,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 #######################################################
 
 n_estimators = 200
-weights = {0: 0.5, 1: 1}
+weights = {0: 2, 1: 1}
 clf = RandomForestClassifier(n_estimators,
                              max_features=None,
                              oob_score=False,
