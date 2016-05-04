@@ -1,4 +1,4 @@
-from DataAnalysis.RandomForest.preproc_rf import preproc_rf
+from preproc_rf import preproc_rf
 import ebay
 import os
 import os.path
@@ -109,7 +109,7 @@ def make_plots():
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-@sched.scheduled_job('interval', minutes=5)
+@sched.scheduled_job('interval', minutes=3)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()
@@ -117,7 +117,7 @@ def timed_job():
 
     # Separate the target and inputs
     y = new_data.sellingState
-    new_data.drop('sellingState', axis=1, inplace=True)
+    new_data.drop(['sellingState','endTime'], axis=1, inplace=True)
 
     # Predict the selling outcome of new listings
     cmat, auc = predict_and_compare(new_data, y)
@@ -127,5 +127,7 @@ def timed_job():
 
     # Make new plots
     make_plots()
+
+    print("Updated at", datetime.datetime.now())
 
 sched.start()

@@ -10,7 +10,7 @@ import pprint as pp
 #######################################################
 
 # Read in the pandas.DataFrame from csv
-data = pd.read_csv('ebay_data_rf.csv', index_col=False)
+data = pd.read_csv('../../Data/ebay_data_rf.csv', index_col=False)
 
 print("Initial shape: ", data.shape)
 
@@ -26,7 +26,7 @@ data.drop('sellingState', axis=1, inplace=True)
 #######################################################
 
 X_train, X_test, y_train, y_test = train_test_split(
-    data, y, test_size=0.25, random_state=7
+    data, y, test_size=0.1, random_state=7
 )
 
 #######################################################
@@ -34,17 +34,17 @@ X_train, X_test, y_train, y_test = train_test_split(
 #######################################################
 
 n_estimators = 200
-weights = {0: 2, 1: 1}
+weights = {0: 1, 1: 1}
 clf = RandomForestClassifier(n_estimators,
-                             max_features=None,
+                             max_features=9,
                              oob_score=False,
                              class_weight=weights,
+                             n_jobs=4,
                              warm_start=False)
 
 # clf = GradientBoostingClassifier(loss='exponential',
-#                                  n_estimators = 400,
-#                                  max_depth=10,
-#                                  max_leaf_nodes=15)
+#                                  n_estimators = n_estimators,
+#                                  max_leaf_nodes=20)
 
 clf.fit(X_train,y_train)
 
@@ -78,4 +78,4 @@ print(score_card)
 # Persist the model
 #######################################################
 
-# joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl',protocol=2)
+joblib.dump(clf, '../../static/model_pkl/rf_model_april_27_2016.pkl',protocol=2)

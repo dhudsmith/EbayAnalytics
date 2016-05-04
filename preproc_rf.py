@@ -155,15 +155,20 @@ def preproc_rf(data):
 
 if __name__ == '__main__':
     print("Reading from csv...")
-    data = pd.read_csv('../../Data/ebay_data.csv', index_col=False)
+    data = pd.read_csv('Data/ebay_data.csv', index_col=False)
 
     print("Preprocessing...")
     data = preproc_rf(data)
 
     print("Final shape:", data.shape)
 
-    # print("Writing to csv...")
-    data.to_csv("ebay_data_rf_endtime.csv", na_rep="NA", index=False)
+    print("Writing to csv...")
+
+    data.to_csv("Data/ebay_data_rf_endTime.csv", na_rep="NA", index=False)
+
+    data.drop(['endTime'], axis=1, inplace=True)
+
+    data.to_csv("Data/ebay_data_rf.csv", na_rep="NA", index=False)
 
     print("Done.")
 

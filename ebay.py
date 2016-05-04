@@ -44,7 +44,7 @@ def init_options():
 #######################################################
 def get_api_dict():
     api_request = {
-        'keywords': u'MacBook',
+        'keywords': u'MacBook Pro',
         'categoryId': u'111422',
         'outputSelector': [u'SellerInfo', u'AspectHistogram'],
         'sortOrder': u'EndTimeNewest',
@@ -55,11 +55,11 @@ def get_api_dict():
              'value': 'USD'},
             {'name': 'HideDuplicatedItems',
              'value': 'true'}
-        ],
-        'aspectFilter': [
-            {'aspectName': 'Product Family',
-             'aspectValueName': 'MacBook Pro'}
         ]
+        # 'aspectFilter': [
+        #     {'aspectName': 'Product Family',
+        #      'aspectValueName': 'MacBook Pro'}
+        # ]
     }
 
     return api_request
@@ -223,13 +223,13 @@ def get_all(opts, api_request):
     num_calls = int( ceil( num_pages/100.0 ) )
 
     # Make the first call:
-    print "Call 1 of", num_calls, ":"
+    print("Call 1 of", num_calls, ":")
     data = get_100_before(opts, api_request, now_str)
 
     # Loop api calls to get all data:
     data_ls = [data]
     for i in range(1, num_calls):
-        print "Call", 1+i, "of" , num_calls, ":"
+        print("Call", 1+i, "of" , num_calls, ":")
         oldest_str = data_ls[i-1]['endTime'].iloc[-1]
         data_ls.append(get_100_before(opts, api_request, oldest_str))
     # return pd.concat(data_ls)
@@ -333,21 +333,5 @@ if __name__ == "__main__":
     # Preprocess the data
     data = preproc(data)
 
-
     # Print the data frame to a file
     data.to_csv("Data/ebay_data.csv", na_rep="NA", index=False, encoding='utf-8')
-
-    # data = get_all(opts, api_dict)
-    #
-    # now = dt.utcnow()
-    # now_str = now.isoformat("T")[:-3] + "Z"
-    #
-    # time_str = now_str
-    #
-    # item_filter_vals = api_request['itemFilter']
-    # item_filter_vals.append({'name': 'EndTimeTo', 'value': now_str})
-    # api_request['itemFilter'] = item_filter_vals
-    #
-    # pp(_get_page(opts, api_request, 1)['paginationOutput'])
-
-    # print(data.head(10), data.endDate)
