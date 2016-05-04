@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix, roc_auc_score
 import numpy as np
 import pandas as pd
 import datetime
-from bokeh.plotting import figure, output_file, save
+from bokeh.plotting import figure, output_file, save, vplot
 from bokeh.models import Range1d
 import logging
 logging.basicConfig()
@@ -84,32 +84,45 @@ def make_plots():
     fp = data["False pos."]
     fn = data["False neg."]
 
-
-    plot = figure(title='Live feed of random forest scores',
+    # Accuracy and AUC
+    plot1 = figure(title='Model performance metrics',
                   x_axis_label=x_name,
                   x_axis_type='datetime',
-                  y_axis_label='Random forest scores')
+                  y_axis_label='Score')
+    plot1.line(time, acc, color = 'black', legend='accuracy', line_width=3)
+    plot1.line(time, auc, color='blue', legend='ROC AUC', line_width=3)
+    plot1.line(time, tp, color='green', legend='True positive')
+    plot1.line(time, tn, color='green', legend='True negative',line_dash=[4, 4])
+    plot1.line(time, fp, color='red', legend='False positive')
+    plot1.line(time, fn, color='red', legend='False negative',line_dash=[4, 4])
+    plot1.legend.location = "bottom_left"
+    plot1.y_range = Range1d(0,1)
 
-    plot.line(time, acc, color = 'black', legend='accuracy', line_width=3)
-    plot.line(time, auc, color='blue', legend='ROC AUC', line_width=3)
-    plot.line(time, tp, color='green', legend='True positive')
-    plot.line(time, tn, color='green', legend='True negative',line_dash=[4, 4])
-    plot.line(time, fp, color='red', legend='False positive')
-    plot.line(time, fn, color='red', legend='False negative',line_dash=[4, 4])
+    plot2 = figure(title='Model performance metrics',
+                   x_axis_label=x_name,
+                   x_axis_type='datetime',
+                   y_axis_label='Score')
+    plot2.line(time, tp/(tp + fn), color='black',
+               legend='Sensitivity = true positive / actual positive',
+               line_width = 3)
+    plot2.line(time, tn/(fp + tn), color='blue',
+               legend='Specificity = true negative / actual negative',
+               line_width = 3)
+    plot2.legend.location = "bottom_left"
+    plot2.y_range = Range1d(0, 1)
 
-    plot.legend.location = "top_left"
-
-    plot.y_range = Range1d(0,1)
+    # Combine the plots
+    p = vplot(plot1, plot2)
 
     output_file("templates/runningscore.html")
 
-    save(plot)
+    save(p)
 
 ##################################################
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-@sched.scheduled_job('interval', minutes=3)
+@sched.scheduled_job('interval', minutes=1)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()

@@ -7,15 +7,14 @@ Licensed under CDDL 1.0
 
 from optparse import OptionParser
 from datetime import datetime as dt
-from dateutil.parser import parse
 import pandas as pd
 import ebaysdk
 from ebaysdk.finding import Connection as finding
 from ebaysdk.exception import ConnectionError
+
 from math import ceil
 
 from pprint import pprint as pp
-from pprint import pformat
 
 
 #######################################################
@@ -235,6 +234,11 @@ def get_all(opts, api_request):
     # return pd.concat(data_ls)
 
     return pd.concat(data_ls)
+
+# TODO:
+# Get a an item by id:
+# def get_single_item(id):
+
 
 #######################################################
 # Preprocessing
