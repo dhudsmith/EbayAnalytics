@@ -100,8 +100,8 @@ def times_to_categorical(data):
 #######################################################
 
 def delete_unwanted(data):
-    data.drop(['itemId','title','startTime'
-               ,'postalCode','bidCount',
+    data.drop(['itemId','title','startTime',
+               'postalCode','bidCount',
                'topRatedListing','gift', 'categoryName',
                'categoryId','startHour','startMonth',
                'endMonth','startMonthday','endMonthday','startWeekday'],

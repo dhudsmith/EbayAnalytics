@@ -122,7 +122,7 @@ def make_plots():
 # DataAnalysis.RandomForest.preproc_rf
 ##################################################
 
-@sched.scheduled_job('interval', minutes=3)
+@sched.scheduled_job('interval', seconds=20)
 def timed_job():
     # Get the new data
     timestamp = datetime.datetime.now()

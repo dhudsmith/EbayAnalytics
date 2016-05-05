@@ -19,6 +19,7 @@ print("Initial shape: ", data.shape)
 #######################################################
 
 y = data.sellingState
+# data.drop(['sellingState'], axis=1, inplace=True)
 data.drop(['sellingState'], axis=1, inplace=True)
 
 #######################################################
@@ -34,7 +35,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 #######################################################
 
 n_estimators = 300
-max_features = 10
+max_features = None
 weights = {0: 1, 1: 1}
 clf = RandomForestClassifier(n_estimators,
                              max_features=max_features,

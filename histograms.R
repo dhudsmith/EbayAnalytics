@@ -16,7 +16,7 @@ df$feedbackRatingStar
 #################################
 
 # Subset to desired products
-products = names(sort(table(df.sold$productId_value), decreasing = TRUE)[1:6])
+products = names(sort(table(df.sold$productId_value), decreasing = F)[1:6])
 df.sold.prod = subset(df.sold, productId_value %in% products)
 df.sold.prod$productId_value <- factor(df.sold.prod$productId_value)
 df.sold.prod$productId_value <- reorder(df.sold.prod$productId_value, df.sold.prod$value, mean)
@@ -27,7 +27,8 @@ hist_prod <- ggplot(df.sold.prod, aes(x = value, color = isShippingFree)) +
   ggtitle("Distribution of sale prices for top selling products")+
   xlab("Sale value in USD")+
   geom_line(stat="density", bw=37)+
-  facet_wrap(~productId_value, ncol = 1)
+  facet_wrap(~productId_value, ncol = 1)+
+  theme(legend.position = "top")
 
 hist_prod
 # Save the plot as a png
