@@ -1,6 +1,6 @@
 import pandas as pd
 import pprint as pp
-from bokeh.charts import Bar, BoxPlot, output_file, show
+from bokeh.charts import Bar, BoxPlot, Histogram, output_file, show
 from bokeh.models import Range1d
 from bokeh.io import hplot
 from bokeh.plotting import figure
@@ -11,34 +11,8 @@ from datetime import datetime
 #######################################################
 
 # Read in the pandas.DataFrame from csv
-data = pd.read_csv('./ebay_data.csv', index_col=False)
+data = pd.read_csv('Data/ebay_data.csv', index_col=False)
 
-# Reorder the columns in a reasonable way
-new_col_order = ['itemId',
-                 'title',
-                 'productId_type',
-                 'productId_value',
-                 'conditionDisplayName',
-                 'conditionId',
-                 'categoryId',
-                 'categoryName',
-                 'startTime',
-                 'endTime',
-                 'postalCode',
-                 'country',
-                 'listingType',
-                 'bidCount',
-                 'buyItNowAvailable',
-                 'bestOfferEnabled',
-                 'topRatedListing',
-                 'gift',
-                 'paymentMethod',
-                 'expeditedShipping',
-                 'shippingType',
-                 'returnsAccepted',
-                 'sellingState',
-                 'value']
-data = data[new_col_order]
 
 
 #######################################################
@@ -90,7 +64,7 @@ plt = BoxPlot(data_sold, values='value', label=['listingType', 'isShippingFree']
               xlabel="(Listing Type, Free Shipping)",
               ylabel="Sale price ($)",
               color='listingType',
-              outliers=False,
+              outliers=True,
               tools=TOOLS)
 plt.logo = None
 plt.toolbar_location = None
@@ -99,7 +73,7 @@ plt.toolbar_location = None
 
 # Save the plot
 output_file("./templates/plot1_new.html")
-show(plt)
+# show(plt)
 
 #######################################################
 # Examine the effect of different factors on
@@ -172,4 +146,29 @@ plt2.toolbar_location = None
 plt2.y_range = Range1d(start=0,end=1)
 # Save the plot
 output_file("./templates/plot3_new.html")
-show(plt2)
+# show(plt2)
+
+
+#######################################################
+# Look at dependence of sale outcome on seller feedback score
+#######################################################
+
+
+# hist = Histogram(data_sold, values='feedbackScore', color='listingType',
+#                  title="Distribution of feedback scores for sold items", legend='top_left')
+#
+# # Save the plot
+# output_file("./templates/data_exploration.html")
+# show(hist)
+
+#######################################################
+# Look at distributions of sale prices by product
+#######################################################
+
+
+hist = Histogram(data_sold, values='value', color='productId_value',
+                 title="Distribution of sale prices by product", legend='top_left')
+
+# Save the plot
+output_file("./templates/sales_histogram.html")
+show(hist)

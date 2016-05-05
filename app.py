@@ -25,6 +25,11 @@ def plot3():
 
     return render_template('plot3.html')
 
+@app.route('/exploration', methods = ['GET'])
+def prod_hist():
+
+    return render_template('data_exploration.html')
+
 @app.route('/livefeed', methods = ['GET'])
 def rf():
     return render_template('runningscore.html')
