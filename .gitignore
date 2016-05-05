@@ -62,7 +62,6 @@ target/
 .ipynb_checkpoints
 
 # App specific files
-/Data
 /static/running_data.csv
 /static/OOB_max_features.png
 /static/OOB_n_features.png
