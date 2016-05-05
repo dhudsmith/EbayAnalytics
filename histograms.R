@@ -16,7 +16,7 @@ df$feedbackRatingStar
 #################################
 
 # Subset to desired products
-products = names(sort(table(df.sold$productId_value), decreasing = F)[1:6])
+products = names(sort(table(df.sold$productId_value), decreasing = T)[1:6])
 df.sold.prod = subset(df.sold, productId_value %in% products)
 df.sold.prod$productId_value <- factor(df.sold.prod$productId_value)
 df.sold.prod$productId_value <- reorder(df.sold.prod$productId_value, df.sold.prod$value, mean)
